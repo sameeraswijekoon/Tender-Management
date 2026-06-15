@@ -3,440 +3,411 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tender Management - Operations Hub</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<title>Tender Management Dashboard</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-/* ══════════════════════════════════════════════
-   DESIGN TOKENS
-══════════════════════════════════════════════ */
-:root {
-  --navy-950:   #0A0E1A;
-  --navy-900:   #0F1525;
-  --navy-800:   #161D35;
-  --navy-700:   #1C2444;
-  --navy-600:   #243058;
-  --blue-600:   #1A56DB;
-  --blue-500:   #3B82F6;
-  --blue-400:   #60A5FA;
-  --blue-100:   #DBEAFE;
-  --blue-50:    #EFF6FF;
-  --success:    #10B981;
-  --success-bg: #ECFDF5;
-  --warning:    #F59E0B;
-  --warning-bg: #FFFBEB;
-  --danger:     #EF4444;
-  --danger-bg:  #FEF2F2;
-  --bg-app:     #F0F4F8;
-  --bg-card:    #FFFFFF;
-  --border:     #E2E8F0;
-  --border-mid: #CBD5E1;
-  --text-hi:    #0F172A;
-  --text-md:    #334155;
-  --text-lo:    #64748B;
-  --text-dim:   #94A3B8;
-  --ff-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --ff-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --r-xs: 4px; --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
-  --shadow-lg: 0 20px 50px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08);
-}
-
-/* ══════════════════════════════════════════════
-   RESET & BASE
-══════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-  font-family: var(--ff-body);
-  background: var(--bg-app);
-  color: var(--text-hi);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #F4F6F9;
+  color: #1C2434;
   min-height: 100vh;
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
 }
 
-/* ══════════════════════════════════════════════
-   LOGIN SCREEN
-══════════════════════════════════════════════ */
-#appWrapper { display: none; } /* Hidden until auth */
+/* ── Lenovo PSREF Inspired Color Palette ── */
+:root {
+  --primary: #0062E6;        
+  --primary-hover: #0050BC;
+  --dark-bg: #111625;       
+  --card-bg: #FFFFFF;
+  --border-color: #E2E8F0;
+  --text-main: #1C2434;
+  --text-muted: #64748B;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+}
 
-.login-wrapper {
-  position: fixed; inset: 0;
-  background: var(--navy-950);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 9999;
-  padding: 1rem;
-}
-.login-box {
-  background: var(--bg-card);
-  padding: 2.5rem;
-  border-radius: var(--r-lg);
-  width: 100%; max-width: 420px;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border);
-}
-.login-logo {
-  width: 48px; height: 48px;
-  background: var(--blue-600);
-  border-radius: var(--r-md);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px; color: #fff;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 4px 12px rgba(26,86,219,0.3);
-}
-.login-box h2 { font-size: 22px; font-weight: 800; color: var(--text-hi); margin-bottom: 0.25rem; letter-spacing: -0.5px; }
-.login-box p { font-size: 14px; color: var(--text-lo); margin-bottom: 1.5rem; }
+/* ── Layout ── */
+.page { display: flex; flex-direction: column; min-height: 100vh; }
 
-.login-error {
-  color: var(--danger); background: var(--danger-bg);
-  padding: 12px; border-radius: var(--r-sm);
-  font-size: 13px; font-weight: 600;
-  margin-bottom: 1.25rem; display: none;
-  border: 1px solid #FECACA;
-}
-.login-btn { width: 100%; justify-content: center; margin-top: 1rem; padding: 12px; font-size: 14px; }
+/* Hide main app initially for auth */
+#mainApp { display: none; }
 
-/* Reusing your form group styling for login */
-.form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1rem; }
-.form-label { font-size: 11px; font-weight: 700; color: var(--text-md); text-transform: uppercase; letter-spacing: 0.5px; }
-.form-group input {
-  padding: 10px 13px; border: 1px solid var(--border); border-radius: var(--r-sm);
-  background: #FAFBFD; color: var(--text-hi); font-size: 13.5px; font-family: var(--ff-body);
-  outline: none; transition: all 0.15s;
-}
-.form-group input:focus { border-color: var(--blue-500); background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,0.14); }
-
-/* ══════════════════════════════════════════════
-   HEADER
-══════════════════════════════════════════════ */
 .header {
-  background: var(--navy-900); height: 66px; display: flex; align-items: center;
-  padding: 0 2rem; justify-content: space-between; position: sticky; top: 0; z-index: 100;
-  border-bottom: 1px solid rgba(255,255,255,0.07); box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+  background: var(--dark-bg);
+  padding: 0 2.5rem;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 3px solid var(--primary);
 }
-.header-brand { display: flex; align-items: center; gap: 14px; }
-.brand-icon { width: 36px; height: 36px; background: var(--blue-600); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; flex-shrink: 0; box-shadow: 0 2px 8px rgba(26,86,219,0.4); }
-.brand-text h1 { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.3px; line-height: 1.2; }
-.brand-text .sub { font-size: 11px; color: var(--text-dim); font-weight: 500; letter-spacing: 0.3px; }
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header-logo {
+  width: 42px; height: 42px;
+  background: var(--primary);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: #fff;
+}
+.header h1 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+.header-sub { font-size: 12px; color: #94A3B8; margin-top: 1px; font-weight: 500; }
 
-.colombo-clock { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); font-size: 12px; color: var(--text-dim); font-family: var(--ff-mono); font-weight: 500; white-space: nowrap; }
-.colombo-clock .ti { font-size: 14px; }
-
-.header-actions { display: flex; align-items: center; gap: 12px; justify-content: flex-end; }
-.db-pill { display: flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); font-size: 12px; color: var(--text-dim); font-weight: 500; transition: background 0.2s; }
-.db-dot { width: 7px; height: 7px; border-radius: 50%; background: #555; flex-shrink: 0; transition: background 0.3s; }
-.db-dot.connected { background: var(--success); box-shadow: 0 0 6px rgba(16,185,129,0.6); }
+.db-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #94A3B8; background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
+.db-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; flex-shrink: 0; }
+.db-dot.connected { background: var(--success); }
 .db-dot.error     { background: var(--danger); }
-.db-dot.syncing   { background: var(--warning); animation: blink 0.8s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.db-dot.syncing   { background: var(--warning); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
-.user-profile-badge {
-  display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: var(--r-sm);
-  background: rgba(255,255,255,0.05); color: #fff; font-size: 12px; font-weight: 600; border: 1px solid rgba(255,255,255,0.1);
+.header-right { display: flex; align-items: center; gap: 16px; }
+.colombo-clock { font-size: 12px; color: #94A3B8; font-weight: 500; display: flex; align-items: center; gap: 6px; margin-right: 4px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 16px; }
+
+.btn-primary {
+  background: var(--primary); color: #fff; border: none;
+  padding: 10px 24px; border-radius: 4px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all 0.15s ease; white-space: nowrap; letter-spacing: 0.3px;
 }
-.btn-logout { background: transparent; border: none; color: var(--danger); cursor: pointer; font-size: 16px; margin-left: 4px; opacity: 0.8; transition: opacity 0.2s; display: flex; align-items: center;}
-.btn-logout:hover { opacity: 1; }
+.btn-primary:hover    { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-primary:disabled { background: #64748B; cursor: not-allowed; transform: none; }
 
-/* ══════════════════════════════════════════════
-   BUTTONS
-══════════════════════════════════════════════ */
-.btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: var(--r-sm); font-family: var(--ff-body); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s ease; white-space: nowrap; letter-spacing: 0.2px; }
-.btn-primary { background: var(--blue-600); color: #fff; box-shadow: 0 1px 4px rgba(26,86,219,0.3); }
-.btn-primary:hover { background: #1648C0; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,86,219,0.35); }
-.btn-primary:active { transform: translateY(0); }
-.btn-primary:disabled { background: var(--text-lo); cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.7; }
-.btn-success { background: var(--success); color: #fff; box-shadow: 0 1px 4px rgba(16,185,129,0.3); }
-.btn-success:hover { background: #0DA271; transform: translateY(-1px); }
-.btn-ghost { background: transparent; color: var(--text-md); border: 1px solid var(--border); }
-.btn-ghost:hover { background: var(--bg-app); border-color: var(--border-mid); }
+.btn-success {
+  background: #10B981; color: #fff; border: none;
+  padding: 10px 20px; border-radius: 4px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all 0.15s ease; white-space: nowrap; letter-spacing: 0.3px;
+}
+.btn-success:hover { background: #059669; transform: translateY(-1px); }
 
-/* ══════════════════════════════════════════════
-   MAIN CONTENT & COMPONENTS
-══════════════════════════════════════════════ */
-.page-body { max-width: 1680px; margin: 0 auto; padding: 2rem 2rem 3rem; }
+.user-controls { display: flex; align-items: center; gap: 12px; margin-right: 12px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 16px; }
+.user-name-display { color: #fff; font-weight: 600; font-size: 14px; }
+.btn-ghost-light { background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+.btn-ghost-light:hover { background: rgba(255,255,255,0.2); }
 
-/* KPI Grid */
-.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
-@media(max-width:1100px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
-@media(max-width:580px)  { .kpi-grid { grid-template-columns: 1fr; } }
-.kpi-card { background: var(--bg-card); border-radius: var(--r-md); padding: 1.5rem; border: 1px solid var(--border); box-shadow: var(--shadow-xs); display: flex; align-items: center; gap: 16px; position: relative; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
-.kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-.kpi-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 4px 0 0 4px; }
-.kpi-card.blue::before { background: var(--blue-600); } .kpi-card.red::before { background: var(--danger); }
-.kpi-card.amber::before { background: var(--warning); } .kpi-card.green::before { background: var(--success); }
-.kpi-icon { width: 50px; height: 50px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-.kpi-card.blue .kpi-icon { background: var(--blue-50); color: var(--blue-600); }
-.kpi-card.red .kpi-icon { background: var(--danger-bg); color: var(--danger); }
-.kpi-card.amber .kpi-icon { background: var(--warning-bg); color: var(--warning); }
-.kpi-card.green .kpi-icon { background: var(--success-bg); color: var(--success); }
-.kpi-val { font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -1.5px; color: var(--text-hi); font-variant-numeric: tabular-nums; }
-.kpi-label { font-size: 12px; font-weight: 600; color: var(--text-lo); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 5px; }
+.content { padding: 2.5rem; flex: 1; max-width: 1600px; width: 100%; margin: 0 auto; }
 
-/* Alert Strip */
-.alert-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.75rem; }
-@media(max-width:768px) { .alert-strip { grid-template-columns: 1fr; } }
-.alert-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-md); padding: 1rem 1.5rem; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow-xs); }
-.alert-icon { width: 42px; height: 42px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.alert-icon.red { background: var(--danger-bg); color: var(--danger); }
-.alert-icon.amber { background: var(--warning-bg); color: var(--warning); }
-.alert-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); margin-bottom: 3px; }
-.alert-value { font-size: 14px; font-weight: 600; color: var(--text-hi); }
+/* ── KPI cards ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+@media(max-width:1024px){ .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:640px){ .kpi-grid { grid-template-columns: 1fr; } }
+.kpi { background: var(--card-bg); border-radius: 6px; padding: 1.5rem; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between; }
+.kpi-details { display: flex; flex-direction: column; }
+.kpi-val   { font-size: 32px; font-weight: 700; line-height: 1.1; color: var(--text-main); letter-spacing: -0.5px; }
+.kpi-label { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.kpi-icon { width: 48px; height: 48px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.kpi.blue  { border-left: 4px solid var(--primary); } .kpi.blue  .kpi-icon { background: #E6F0FA; color: var(--primary); }
+.kpi.red   { border-left: 4px solid var(--danger); } .kpi.red   .kpi-icon { background: #FCE8E6; color: var(--danger); }
+.kpi.amber { border-left: 4px solid var(--warning); } .kpi.amber .kpi-icon { background: #FEF3CD; color: var(--warning); }
+.kpi.green { border-left: 4px solid var(--success); } .kpi.green .kpi-icon { background: #E6F4EA; color: var(--success); }
 
-/* Toolbar */
-.toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
-.search-wrap { flex: 1; min-width: 260px; position: relative; }
-.search-wrap .ti-search { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--text-dim); pointer-events: none; }
-.search-wrap input { width: 100%; padding: 10px 14px 10px 40px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--bg-card); color: var(--text-hi); font-size: 13.5px; font-family: var(--ff-body); outline: none; box-shadow: var(--shadow-xs); transition: border-color 0.15s, box-shadow 0.15s; }
-.search-wrap input:focus { border-color: var(--blue-500); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
-.filter-sel { padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--bg-card); color: var(--text-hi); font-size: 13.5px; font-family: var(--ff-body); cursor: pointer; outline: none; box-shadow: var(--shadow-xs); min-width: 190px; transition: border-color 0.15s; }
-.filter-sel:focus { border-color: var(--blue-500); }
-.toolbar-divider { width: 1px; height: 30px; background: var(--border); }
+/* ── Alert strip ── */
+.alert-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+@media(max-width:768px){ .alert-strip { grid-template-columns: 1fr; } }
+.alert-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 16px; }
+.alert-icon { width: 44px; height: 44px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.alert-icon.red    { background: #FCE8E6; color: var(--danger); }
+.alert-icon.amber  { background: #FEF3CD; color: var(--warning); }
+.alert-meta { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 4px; font-weight: 700; }
+.alert-val  { font-size: 14px; font-weight: 600; color: var(--text-main); }
 
-/* Table */
-.table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--shadow-sm); overflow: hidden; }
-.table-header-bar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); }
-.table-header-bar h3 { font-size: 14px; font-weight: 700; color: var(--text-hi); }
-.record-count { font-size: 12px; color: var(--text-lo); font-weight: 500; background: var(--bg-app); padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); }
+/* ── Toolbar ── */
+.toolbar { display: flex; gap: 16px; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.search-wrap { flex: 1; min-width: 280px; position: relative; }
+.search-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--text-muted); }
+.search-wrap input { width: 100%; padding: 12px 14px 12px 42px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; font-family: inherit; transition: all 0.15s; }
+.search-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,98,230,0.15); }
+.filter-sel { padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--card-bg); color: var(--text-main); font-size: 14px; cursor: pointer; outline: none; font-family: inherit; min-width: 180px; }
+.filter-sel:focus { border-color: var(--primary); }
+
+/* ── Table ── */
+.table-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); overflow: hidden; }
 .table-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-thead { background: #FAFBFC; }
-th { font-size: 11px; font-weight: 700; color: var(--text-lo); text-transform: uppercase; letter-spacing: 0.7px; padding: 13px 18px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
+thead { background: #F8FAFC; border-bottom: 2px solid var(--border-color); }
+th { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 20px; text-align: left; white-space: nowrap; }
 th.sortable { cursor: pointer; user-select: none; }
-th.sortable:hover { color: var(--text-hi); background: #F1F5F9; }
-td { font-size: 13.5px; padding: 14px 18px; color: var(--text-md); vertical-align: middle; border-bottom: 1px solid #F1F5F9; }
-tbody tr { cursor: pointer; transition: background 0.1s; }
-tbody tr:hover { background: #FAFCFF; }
-.tc-cust { width: 20%; min-width: 180px; } .tc-items { width: 18%; min-width: 150px; } .tc-date { width: 9%; min-width: 96px; } .tc-days { width: 9%; min-width: 100px; } .tc-sales { width: 11%; min-width: 120px; } .tc-lp { width: 7%; min-width: 80px; text-align: center; } .tc-note { width: 15%; min-width: 140px; } .tc-act { width: 6%; min-width: 80px; text-align: right; }
-.cust-name { font-weight: 700; color: var(--text-hi); font-size: 13.5px; }
+th.sortable:hover { background: #F1F5F9; color: var(--text-main); }
+th.sortable i { font-size: 12px; margin-left: 4px; vertical-align: middle; }
+td { font-size: 14px; padding: 16px 20px; color: var(--text-main); vertical-align: middle; border-bottom: 1px solid #F1F5F9; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { cursor: pointer; transition: background 0.1s ease; }
+tbody tr:hover { background: #F8FAFC; }
 
-/* Badges & Text Options */
-.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.2px; }
-.badge-red { background: #FEE2E2; color: #B91C1C; } .badge-amber { background: #FEF3C7; color: #92400E; } .badge-green { background: #D1FAE5; color: #065F46; } .badge-gray { background: #F1F5F9; color: var(--text-lo); } .badge-urgent { background: #FEE2E2; color: #B91C1C; font-size: 10px; padding: 2px 6px; margin-left: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
-.days-ok { color: var(--success); font-weight: 700; font-family: var(--ff-mono); font-size: 13px; } .days-warn { color: var(--warning); font-weight: 700; font-family: var(--ff-mono); font-size: 13px; } .days-crit { color: var(--danger); font-weight: 700; font-family: var(--ff-mono); font-size: 13px; }
-.lp-tick.yes { color: var(--success); font-size: 17px;} .lp-tick.no { color: #DDE1E7; font-size: 17px;}
-.row-actions { display: flex; gap: 5px; justify-content: flex-end; }
-.btn-icon { width: 30px; height: 30px; border-radius: var(--r-xs); display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid transparent; cursor: pointer; font-size: 15px; color: var(--text-dim); transition: all 0.12s; }
-.btn-icon:hover { background: #F1F5F9; color: var(--text-hi); border-color: var(--border); }
-.btn-icon.del:hover { background: var(--danger-bg); color: var(--danger); border-color: #FCA5A5; }
-.empty-row td { text-align: center; color: var(--text-lo); padding: 5rem 1rem; cursor: default; }
-.empty-state { display: flex; flex-direction: column; align-items: center; gap: 10px; } .empty-state .ti { font-size: 36px; color: var(--border-mid); }
-.skeleton { display: inline-block; border-radius: 4px; background: linear-gradient(90deg,#F1F5F9 25%,#E9EEF4 50%,#F1F5F9 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; height: 14px; vertical-align: middle; }
-@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.tc-cust  { width: 20%; min-width: 180px; } .tc-items { width: 16%; min-width: 150px; }
+.tc-date  { width: 9%;  min-width: 100px; } .tc-days  { width: 8%;  min-width: 90px; }
+.tc-sales { width: 10%; min-width: 120px; } .tc-spr   { width: 8%;  min-width: 80px; text-align: center; }
+.tc-lp    { width: 8%;  min-width: 90px; text-align: center; } .tc-note  { width: 14%; min-width: 140px; }
+.tc-act   { width: 6%;  min-width: 80px; text-align: right; }
 
-/* Modal Elements */
-.modal-bg { display: none; position: fixed; inset: 0; background: rgba(10,14,26,0.65); backdrop-filter: blur(6px); z-index: 300; overflow-y: auto; padding: 2rem 1rem; align-items: flex-start; justify-content: center; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge-red    { background: #FCE8E6; color: var(--danger); }
+.badge-amber  { background: #FEF3CD; color: #B7791F; }
+.badge-green  { background: #E6F4EA; color: var(--success); }
+.badge-gray   { background: #EDF2F7; color: var(--text-muted); }
+
+.days-crit   { color: var(--danger); font-weight: 700; }
+.days-warn   { color: var(--warning); font-weight: 700; }
+.days-ok     { color: var(--success); font-weight: 600; }
+.lp-tick { font-size: 18px; display: block; text-align: center; }
+.lp-tick.yes { color: var(--success); } .lp-tick.no  { color: #CBD5E1; }
+.row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.btn-icon { background: none; border: 1px solid transparent; cursor: pointer; color: var(--text-muted); padding: 6px; border-radius: 4px; font-size: 16px; display: inline-flex; align-items: center; }
+.btn-icon:hover { background: #EDF2F7; color: var(--text-main); border-color: var(--border-color); }
+.btn-icon.del:hover { background: #FCE8E6; color: var(--danger); border-color: #F8D7DA; }
+.empty-row td { text-align: center; color: var(--text-muted); padding: 5rem; font-size: 14px; }
+
+/* ── Modals ── */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(17, 22, 37, 0.7); backdrop-filter: blur(4px); z-index: 200; overflow-y: auto; padding: 2rem 1rem; align-items: flex-start; justify-content: center; }
 .modal-bg.open { display: flex; }
-.modal { background: var(--bg-card); border-radius: var(--r-lg); width: 100%; max-width: 820px; margin: auto; box-shadow: var(--shadow-lg); border: 1px solid var(--border); overflow: hidden; }
-.modal-top { background: var(--navy-900); padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--blue-600); }
-.modal-top h2 { font-size: 18px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; } .modal-top h2 .ti { color: var(--blue-400); font-size: 20px;}
-.modal-close-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--r-sm); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-size: 16px; }
-.modal.view-only .modal-top { border-bottom-color: var(--border-mid); }
-.modal-body { padding: 2rem; }
-.form-section { margin-bottom: 1.75rem; }
-.form-section-title { font-size: 11px; font-weight: 800; color: var(--blue-600); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 7px; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; } .form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; } .form-full { grid-column: 1 / -1; }
-.form-group textarea { padding: 10px 13px; border: 1px solid var(--border); border-radius: var(--r-sm); background: #FAFBFD; color: var(--text-hi); font-size: 13.5px; font-family: var(--ff-body); outline: none; resize: vertical; min-height: 88px; line-height: 1.6; }
-.form-group textarea:focus { border-color: var(--blue-500); background: #fff; }
-.lp-toggle-wrap { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--r-sm); cursor: pointer; user-select: none; background: #FAFBFD; }
-.lp-toggle-wrap.checked { border-color: var(--success); background: #F0FDF4; }
-.lp-checkbox { width: 22px; height: 22px; border-radius: 5px; border: 2px solid var(--border-mid); background: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-.lp-toggle-wrap.checked .lp-checkbox { background: var(--success); border-color: var(--success); color: #fff; }
-.lp-label-main { font-size: 13.5px; font-weight: 600; color: var(--text-hi); } .lp-label-sub { font-size: 12px; color: var(--text-lo); margin-top: 1px; }
-.items-header, .item-row { display: grid; grid-template-columns: 1fr 120px 38px; gap: 10px; margin-bottom: 8px; }
-.item-row input { padding: 10px 13px; border: 1px solid var(--border); border-radius: var(--r-sm); background: #FAFBFD; outline: none; }
-.btn-del { width: 38px; height: 38px; border: 1px solid var(--border); border-radius: var(--r-sm); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; color: var(--text-dim); } .btn-del:hover { background: var(--danger-bg); color: var(--danger); border-color: #FCA5A5; }
-.btn-add-item { width: 100%; padding: 11px; background: transparent; border: 1.5px dashed var(--border-mid); border-radius: var(--r-sm); color: var(--blue-600); font-size: 13px; font-weight: 600; cursor: pointer; }
-.compact-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; } .compact-cell { background: #FAFBFD; border: 1px solid var(--border); padding: 11px 14px; border-radius: var(--r-sm); } .compact-cell.full { grid-column: 1 / -1; } .compact-cell.highlight { background: #FFFBEB; border-color: #FCD34D; }
-.compact-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; } .compact-value { font-size: 14px; font-weight: 600; color: var(--text-hi); }
-.compact-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--border); border-radius: var(--r-sm); overflow: hidden; }
-.compact-table th { background: #F8FAFC; padding: 9px 14px; font-size: 11px; font-weight: 700; color: var(--text-lo); text-transform: uppercase; text-align: left; }
-.compact-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #F1F5F9; color: var(--text-md); }
-.modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 1.25rem 2rem; border-top: 1px solid var(--border); background: #FAFBFD; }
+.modal { background: var(--card-bg); border-radius: 6px; width: 100%; max-width: 800px; padding: 2.5rem; margin: auto; box-shadow: 0 24px 48px rgba(0,0,0,0.2); border-top: 4px solid var(--primary); }
+.modal.view-only { border-top: 4px solid var(--text-muted); max-width: 680px; padding: 2rem; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+.modal-head h2 { font-size: 22px; font-weight: 700; color: var(--text-main); letter-spacing: -0.5px; }
+.modal.view-only .modal-head { margin-bottom: 1.25rem; }
 
-/* Toast */
-.toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--navy-900); color: #fff; padding: 13px 20px; border-radius: var(--r-sm); font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(12px); transition: all 0.22s ease; z-index: 999; display: flex; align-items: center; gap: 9px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); border-left: 3px solid var(--blue-500); }
+.btn-ghost { background: none; border: 1px solid var(--border-color); border-radius: 4px; padding: 8px 14px; cursor: pointer; color: var(--text-main); font-size: 14px; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-weight: 600; }
+.btn-ghost:hover { background: #F8FAFC; border-color: #CBD5E1; }
+
+.form-section { margin-bottom: 2rem; }
+.form-section-title { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.25rem; padding-bottom: 6px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px; }
+.modal.view-only .form-section-title { color: var(--text-muted); margin-bottom: 0.75rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+@media(max-width:600px){ .form-grid { grid-template-columns: 1fr; } }
+.form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-full { grid-column: 1 / -1; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 11px; font-weight: 700; color: #4A5568; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group textarea, .form-group select { padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 4px; background: #FFF; color: var(--text-main); font-size: 14px; outline: none; font-family: inherit; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,98,230,0.12); }
+.form-group textarea { resize: vertical; min-height: 90px; }
+
+/* ── Login Overlay ── */
+#loginScreen {
+  position: fixed; inset: 0; background: #F4F6F9; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+}
+.auth-card {
+  background: #fff; width: 100%; max-width: 400px;
+  border-radius: 6px; padding: 2.5rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  border-top: 4px solid var(--primary);
+  text-align: center;
+}
+.auth-card h1 { font-size: 24px; color: var(--dark-bg); margin-bottom: 8px; font-weight: 700; }
+.auth-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 2rem; }
+.auth-form { text-align: left; }
+.auth-form .form-group { margin-bottom: 1rem; }
+.auth-btn { width: 100%; padding: 12px; margin-top: 1rem; justify-content: center; font-size: 16px; }
+
+/* Items Block */
+.item-row { display: grid; grid-template-columns: 1fr 120px 42px; gap: 12px; margin-bottom: 12px; align-items: center; }
+.item-row input { padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 4px; background: #fff; color: var(--text-main); font-size: 14px; outline: none; }
+.item-row input:focus { border-color: var(--primary); }
+.btn-del { background: none; border: 1px solid var(--border-color); border-radius: 4px; width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 16px; }
+.btn-del:hover { background: #FCE8E6; color: var(--danger); border-color: #F8D7DA; }
+.btn-add-item { width: 100%; padding: 12px; background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 4px; color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; }
+.btn-add-item:hover { border-color: var(--primary); background: #E6F0FA; }
+
+.lp-toggle-wrap { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; user-select: none; background: #F8FAFC; transition: all 0.15s; }
+.lp-toggle-wrap.checked { border-color: var(--success); background: #E6F4EA; }
+.lp-checkbox { width: 22px; height: 22px; border-radius: 4px; border: 2px solid #CBD5E1; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+.lp-toggle-wrap.checked .lp-checkbox { background: var(--success); border-color: var(--success); color: #fff; }
+.lp-toggle-label { font-size: 14px; font-weight: 600; color: var(--text-main); }
+.lp-toggle-sub   { font-size: 12px; color: var(--text-muted); }
+
+.modal-foot { display: flex; justify-content: flex-end; gap: 12px; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
+.modal.view-only .modal-foot { margin-top: 1.5rem; padding-top: 1rem; }
+.toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--dark-bg); color: #fff; padding: 14px 24px; border-radius: 4px; font-size: 14px; font-weight: 600; opacity: 0; transform: translateY(10px); transition: all 0.2s ease; z-index: 500; pointer-events: none; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-left: 4px solid var(--primary); }
 .toast.show { opacity: 1; transform: translateY(0); }
+.skeleton { background: linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; border-radius: 4px; height: 16px; display: inline-block; }
+
+/* Compact Technical View Specifics */
+.compact-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.compact-cell { background: #F8FAFC; border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 4px; }
+.compact-cell.full { grid-column: 1 / -1; }
+.compact-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.compact-value { font-size: 14px; font-weight: 600; color: var(--text-main); }
+.compact-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--border-color); border-radius: 4px; }
+.compact-table th { background: #F1F5F9; padding: 10px 14px; font-size: 11px; }
+.compact-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #F1F5F9; }
 </style>
 </head>
 <body>
 
-<div id="loginWrapper" class="login-wrapper">
-  <div class="login-box">
-    <div class="login-logo"><i class="ti ti-lock-square-rounded"></i></div>
-    <h2>Secure Login</h2>
-    <p>Please enter your credentials to access the Operations Hub.</p>
-    
-    <div id="loginError" class="login-error"><i class="ti ti-alert-circle"></i> Invalid username or password.</div>
-    
-    <div class="form-group" style="margin-bottom: 1rem;">
-      <label class="form-label" for="loginUser">Username</label>
-      <input type="text" id="loginUser" placeholder="Enter username..." onkeypress="handleLoginKey(event)" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="loginPass">Password</label>
-      <input type="password" id="loginPass" placeholder="Enter password..." onkeypress="handleLoginKey(event)">
-    </div>
-    
-    <button class="btn btn-primary login-btn" onclick="attemptLogin()">
-      <i class="ti ti-login"></i> Log In
-    </button>
+<!-- Authentication Overlay -->
+<div id="loginScreen">
+  <div class="auth-card">
+    <div style="font-size: 48px; color: var(--primary); margin-bottom: 12px;"><i class="ti ti-lock-square-rounded"></i></div>
+    <h1>Portal Access</h1>
+    <p>Please log in to manage tenders.</p>
+    <form class="auth-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" id="loginUser" placeholder="Enter username" required autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="loginPass" placeholder="Enter password" required>
+      </div>
+      <button type="submit" class="btn-primary auth-btn">Authenticate</button>
+    </form>
   </div>
 </div>
 
-<div id="appWrapper">
+<div class="page" id="mainApp">
 
   <header class="header">
-    <div class="header-brand">
-      <div class="brand-icon"><i class="ti ti-layers-intersect"></i></div>
-      <div class="brand-text">
+    <div class="header-left">
+      <div class="header-logo"><i class="ti ti-layers-intersect"></i></div>
+      <div>
         <h1>Tender Management</h1>
-        <div class="sub">Operations Hub · Firebase Realtime DB</div>
+        <div class="header-sub">Connected - Firebase Realtime DB</div>
       </div>
     </div>
-
-    <div class="header-actions">
-      <div class="colombo-clock">
-        <i class="ti ti-clock-hour-4"></i>
-        <span id="colomboTimeText">--:--:--</span>
+    <div class="header-right">
+      <div class="user-controls">
+        <i class="ti ti-user-circle" style="color:#fff; font-size: 20px;"></i>
+        <span class="user-name-display" id="displayUserName">User</span>
+        <button class="btn-ghost-light" onclick="openPwdModal()"><i class="ti ti-key"></i> Pass</button>
+        <button class="btn-ghost-light" onclick="logout()"><i class="ti ti-logout"></i> Exit</button>
       </div>
-      <div class="db-pill">
+      <div class="colombo-clock" title="Current Colombo Time">
+        <i class="ti ti-clock-hour-4"></i> <span id="colomboTimeText">--:--:--</span>
+      </div>
+      <div class="db-status">
         <span class="db-dot" id="dbDot"></span>
-        <span id="dbStatusText">Connecting…</span>
+        <span id="dbStatusText">Connecting...</span>
       </div>
-      
-      <div class="user-profile-badge">
-        <i class="ti ti-user-circle"></i> <span id="currentUserLabel">User</span>
-        <button class="btn-logout" onclick="logout()" title="Log Out"><i class="ti ti-logout"></i></button>
-      </div>
-
-      <button class="btn btn-primary" id="newBtn" onclick="openModal('', 'create')" disabled>
+      <button class="btn-primary" id="newBtn" onclick="openModal('', 'create')" disabled>
         <i class="ti ti-plus"></i> New Tender
       </button>
     </div>
   </header>
 
-  <main class="page-body">
+  <div class="content">
 
     <div class="kpi-grid">
-      <div class="kpi-card blue">
+      <div class="kpi blue">
+        <div class="kpi-details"><div class="kpi-val" id="activeCount">—</div><div class="kpi-label">Active Tenders</div></div>
         <div class="kpi-icon"><i class="ti ti-folders"></i></div>
-        <div class="kpi-body">
-          <div class="kpi-val" id="activeCount">—</div>
-          <div class="kpi-label">Active Tenders</div>
-        </div>
       </div>
-      <div class="kpi-card red">
+      <div class="kpi red">
+        <div class="kpi-details"><div class="kpi-val" id="weeklyCount">—</div><div class="kpi-label">Closing in 7 Days</div></div>
         <div class="kpi-icon"><i class="ti ti-alert-octagon"></i></div>
-        <div class="kpi-body">
-          <div class="kpi-val" id="weeklyCount">—</div>
-          <div class="kpi-label">Closing in 7 Days</div>
-        </div>
       </div>
-      <div class="kpi-card amber">
+      <div class="kpi amber">
+        <div class="kpi-details"><div class="kpi-val" id="prebidCount">—</div><div class="kpi-label">With Pre-Bid Meetings</div></div>
         <div class="kpi-icon"><i class="ti ti-calendar-time"></i></div>
-        <div class="kpi-body">
-          <div class="kpi-val" id="prebidCount">—</div>
-          <div class="kpi-label">With Pre-Bid Meetings</div>
-        </div>
       </div>
-      <div class="kpi-card green">
+      <div class="kpi green">
+        <div class="kpi-details"><div class="kpi-val" id="lpCount">—</div><div class="kpi-label">Local Purchase Tenders</div></div>
         <div class="kpi-icon"><i class="ti ti-truck-delivery"></i></div>
-        <div class="kpi-body">
-          <div class="kpi-val" id="lpCount">—</div>
-          <div class="kpi-label">Local Purchase Tenders</div>
-        </div>
       </div>
     </div>
 
     <div class="alert-strip">
       <div class="alert-card">
         <div class="alert-icon red"><i class="ti ti-bell-ringing"></i></div>
-        <div>
-          <div class="alert-eyebrow">Next Closing Target</div>
-          <div class="alert-value" id="nextClosing">—</div>
-        </div>
+        <div><div class="alert-meta">Next Closing Target</div><div class="alert-val" id="nextClosing">—</div></div>
       </div>
       <div class="alert-card">
         <div class="alert-icon amber"><i class="ti ti-users"></i></div>
-        <div>
-          <div class="alert-eyebrow">Next Pre-Bid Meeting</div>
-          <div class="alert-value" id="nextPrebid">—</div>
-        </div>
+        <div><div class="alert-meta">Next Pre-Bid Meeting</div><div class="alert-val" id="nextPrebid">—</div></div>
       </div>
     </div>
 
     <div class="toolbar">
       <div class="search-wrap">
         <i class="ti ti-search"></i>
-        <input id="search" oninput="renderTable()" placeholder="Search by customer name…">
+        <input id="search" oninput="renderTable()" placeholder="Search by customer name...">
       </div>
       <select id="filterSel" class="filter-sel" onchange="renderTable()">
-        <option value="all">All Tenders</option>
-        <option value="urgent">Urgent — 3 days or less</option>
-        <option value="week">Expiring this week</option>
-        <option value="lp">Local Purchase only</option>
+        <option value="all">Show All Tenders</option>
+        <option value="urgent">Urgent (3 Days or Less)</option>
+        <option value="week">Expiring This Week</option>
+        <option value="lp">Local Purchase Only</option>
       </select>
-      <div class="toolbar-divider"></div>
-      <button id="toggleClosedBtn" class="btn btn-ghost" onclick="toggleClosedView()">
-        <i class="ti ti-archive"></i> View Closed
+      <button id="toggleClosedBtn" class="btn-ghost" onclick="toggleClosedView()">
+        <i class="ti ti-archive"></i> View Closed Tenders
       </button>
-      <button class="btn btn-success" onclick="exportToExcelBackup()">
-        <i class="ti ti-file-spreadsheet"></i> Export Excel
+      <button class="btn-success" onclick="exportToExcelBackup()">
+        <i class="ti ti-file-spreadsheet"></i> Export Backup (Excel)
+      </button>
+      <button class="btn-primary" onclick="exportToPNG()" style="background: #8B5CF6;">
+        <i class="ti ti-photo"></i> Export PNG
       </button>
     </div>
 
     <div class="table-card">
-      <div class="table-header-bar">
-        <h3>Tender Records</h3>
-        <span class="record-count" id="recordCountLabel">Loading…</span>
-      </div>
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
-              <th class="tc-cust">Customer</th>
-              <th class="tc-items">Items</th>
-              <th class="tc-date">Collection</th>
-              <th class="tc-date">Pre-Bid</th>
-              <th class="tc-date sortable" onclick="event.stopPropagation(); toggleDateSort()">
-                Closing Date <i id="sortIcon" class="ti ti-arrow-narrow-up sort-icon"></i>
-              </th>
-              <th class="tc-days">Days Left</th>
-              <th class="tc-sales">Sales Person</th>
-              <th class="tc-lp">LP</th>
-              <th class="tc-note">Remarks</th>
-              <th class="tc-act">Actions</th>
+              <th class="tc-cust">Customer</th><th class="tc-items">Items</th><th class="tc-date">Collection</th>
+              <th class="tc-date">Pre-Bid Date</th><th class="tc-date sortable" onclick="event.stopPropagation(); toggleDateSort()">Closing Date <i id="sortIcon" class="ti ti-arrow-narrow-up"></i></th>
+              <th class="tc-days">Days Left</th><th class="tc-sales">Sales Person</th><th class="tc-spr" style="text-align:center">SPR Raised</th>
+              <th class="tc-lp" style="text-align:center">Local Purchase</th><th class="tc-note">Remarks</th><th class="tc-act">Actions</th>
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr class="empty-row">
-              <td colspan="10"><span class="skeleton" style="width:220px">&nbsp;</span></td>
-            </tr>
+            <tr class="empty-row"><td colspan="11"><span class="skeleton" style="width:240px">&nbsp;</span></td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-  </main>
+  </div>
 </div>
 
-<div class="modal-bg" id="modalBg" onclick="bgClick(event)">
+<!-- Main Tender Modal -->
+<div class="modal-bg" id="modalBg" onclick="bgClick(event, 'modalBg')">
   <div class="modal" id="modalWrapper">
-    <div class="modal-top">
-      <h2><i class="ti ti-file-invoice" id="modalIcon"></i> <span id="modalTitle">New Tender</span></h2>
-      <button class="modal-close-btn" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    <div class="modal-head">
+      <h2 id="modalTitle">New Tender</h2>
+      <button class="btn-ghost" onclick="closeModal()"><i class="ti ti-x"></i> Close</button>
     </div>
     <input type="hidden" id="editKey" value="">
-    <div class="modal-body" id="modalDynamicBody"></div>
+    <div id="modalDynamicBody"></div>
     <div class="modal-foot">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="saveBtn" onclick="saveTender()">
-        <i class="ti ti-database-export"></i> Save Tender
-      </button>
+      <button class="btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn-primary" id="saveBtn" onclick="saveTender()"><i class="ti ti-database-export"></i> Save Tender</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal-bg" id="pwdModalBg" onclick="bgClick(event, 'pwdModalBg')">
+  <div class="modal view-only" style="max-width: 400px;">
+    <div class="modal-head">
+      <h2>Change Password</h2>
+      <button class="btn-ghost" onclick="closePwdModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group" style="margin-bottom: 1rem;">
+      <label class="form-label">Previous/Current Password *</label>
+      <input type="password" id="chgOldPass" placeholder="Enter current password">
+    </div>
+    <div class="form-group" style="margin-bottom: 1rem;">
+      <label class="form-label">New Password *</label>
+      <input type="password" id="chgNewPass" placeholder="Enter new password">
+    </div>
+    <div class="form-group" style="margin-bottom: 1rem;">
+      <label class="form-label">Confirm New Password *</label>
+      <input type="password" id="chgConfirmPass" placeholder="Re-enter new password">
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closePwdModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitPasswordChange()">Update Password</button>
     </div>
   </div>
 </div>
@@ -444,139 +415,230 @@ tbody tr:hover { background: #FAFCFF; }
 <div class="toast" id="toast"></div>
 
 <script>
-/* ─── AUTHENTICATION SYSTEM ──────────────────────── */
-const VALID_USERS = {
-  "Gihan": "1234",
-  "Sanula": "1234",
-  "Mahesh": "1234",
-  "Sameera": "7618"
+const DB_URL = 'https://tender-management-ba41e-default-rtdb.firebaseio.com';
+const NODE   = '/tenders';
+const USERS_NODE = '/users';
+let cache    = {};
+let currentModalMode = 'create'; 
+
+// ── Auth & Users Configuration ────────────────────────────────────
+// Usernames and default passwords managed entirely in the script now
+const DEFAULT_PASSWORDS = {
+  "gihan": "1234","sameera": "1234", "mahesh": "1234", "humaid": "1234", "keshan": "1234",
+  "vithushan": "1234", "kanchana": "1234", "sathsara": "1234", "harsha": "1234"
+};
+let currentUser = null;
+
+window.onload = () => {
+  const savedUser = localStorage.getItem('tm_active_user');
+  if (savedUser && DEFAULT_PASSWORDS.hasOwnProperty(savedUser)) {
+    initApp(savedUser);
+  }
 };
 
-function attemptLogin() {
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value.trim();
-  const err = document.getElementById('loginError');
+async function handleLogin(e) {
+  e.preventDefault();
+  
+  // Transform input to lowercase and remove extra spaces
+  const userFieldRaw = document.getElementById('loginUser').value;
+  const userField = userFieldRaw.trim().toLowerCase();
+  const passField = document.getElementById('loginPass').value;
 
-  // Case-insensitive user check
-  const userKey = Object.keys(VALID_USERS).find(key => key.toLowerCase() === u.toLowerCase());
+  if(!userField || !DEFAULT_PASSWORDS.hasOwnProperty(userField)) {
+    return alert("Invalid username.");
+  }
 
-  if (userKey && VALID_USERS[userKey] === p) {
-    err.style.display = 'none';
-    document.getElementById('loginWrapper').style.display = 'none';
-    document.getElementById('appWrapper').style.display = 'block';
-    document.getElementById('currentUserLabel').textContent = userKey;
+  const loginBtn = document.querySelector('.auth-btn');
+  loginBtn.textContent = 'Checking...';
+  loginBtn.disabled = true;
+
+  try {
+    const r = await fetch(`${DB_URL}${USERS_NODE}/${userField}.json`);
+    const dbData = await r.json();
     
-    // Save session so they don't have to log in on every refresh
-    sessionStorage.setItem('tenderLoggedIn', userKey);
-    
-    // Boot the app
-    startColomboClock();
-    loadFromFirebase();
-  } else {
-    err.style.display = 'block';
+    const validPass = (dbData && dbData.password) ? dbData.password : DEFAULT_PASSWORDS[userField];
+
+    if(passField === validPass) {
+      localStorage.setItem('tm_active_user', userField);
+      initApp(userField);
+    } else {
+      alert("Incorrect password.");
+      loginBtn.textContent = 'Authenticate';
+      loginBtn.disabled = false;
+    }
+  } catch(err) {
+    alert("Network error. Could not verify login.");
+    loginBtn.textContent = 'Authenticate';
+    loginBtn.disabled = false;
   }
 }
 
-function handleLoginKey(e) {
-  if (e.key === 'Enter') attemptLogin();
+function initApp(username) {
+  currentUser = username;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'flex';
+  
+  // Format Name: capitalize first letter
+  document.getElementById('displayUserName').textContent = username.charAt(0).toUpperCase() + username.slice(1);
+  
+  startColomboClock();
+  loadFromFirebase();
 }
 
 function logout() {
-  sessionStorage.removeItem('tenderLoggedIn');
+  localStorage.removeItem('tm_active_user');
   window.location.reload();
 }
 
-function checkAuth() {
-  const savedUser = sessionStorage.getItem('tenderLoggedIn');
-  if (savedUser && VALID_USERS[savedUser]) {
-    document.getElementById('loginWrapper').style.display = 'none';
-    document.getElementById('appWrapper').style.display = 'block';
-    document.getElementById('currentUserLabel').textContent = savedUser;
-    startColomboClock();
-    loadFromFirebase();
+// ── Password Change Logic ────────────────────────────────────────
+function openPwdModal() {
+  document.getElementById('chgOldPass').value = '';
+  document.getElementById('chgNewPass').value = '';
+  document.getElementById('chgConfirmPass').value = '';
+  document.getElementById('pwdModalBg').classList.add('open');
+}
+function closePwdModal() { document.getElementById('pwdModalBg').classList.remove('open'); }
+
+async function submitPasswordChange() {
+  const oldP = document.getElementById('chgOldPass').value;
+  const newP = document.getElementById('chgNewPass').value;
+  const confP = document.getElementById('chgConfirmPass').value;
+
+  if(!oldP || !newP || !confP) return alert("Please fill all password fields.");
+  if(newP !== confP) return alert("New passwords do not match!");
+
+  try {
+    const r = await fetch(`${DB_URL}${USERS_NODE}/${currentUser}.json`);
+    const dbData = await r.json();
+    const validPass = (dbData && dbData.password) ? dbData.password : DEFAULT_PASSWORDS[currentUser];
+
+    if(oldP !== validPass) return alert("Your current/previous password is incorrect.");
+
+    // Save new password to DB
+    await fetch(`${DB_URL}${USERS_NODE}/${currentUser}.json`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ password: newP })
+    });
+
+    closePwdModal();
+    showToast("Password successfully changed!", "circle-check");
+
+  } catch(err) {
+    alert("Error changing password. Try again.");
   }
 }
 
-
-/* ─── Config ─────────────────────────────────────── */
-const DB_URL = 'https://tender-management-ba41e-default-rtdb.firebaseio.com';
-const NODE   = '/tenders';
-let cache    = {};
-let currentModalMode = 'create';
+// ── App State Variables ──────────────────────────────────────────
 let viewMode = 'active'; 
-let closingSortDirection = 'asc';
 
-/* ─── Clock ──────────────────────────────────────── */
+// ── Colombo Clock Initializer ────────────────────────────────────
 function startColomboClock() {
-  const el = document.getElementById('colomboTimeText');
-  if (!el) return;
-  const tick = () => {
-    el.textContent = new Date().toLocaleString('en-US', {
-      timeZone: 'Asia/Colombo',
-      month: 'short', day: 'numeric',
-      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
-    }) + ' (LK)';
+  const clockEl = document.getElementById('colomboTimeText');
+  if (!clockEl) return;
+  const updateTime = () => {
+    const now = new Date();
+    clockEl.textContent = now.toLocaleString('en-US', { timeZone: 'Asia/Colombo', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + ' (LK)';
   };
-  tick();
-  setInterval(tick, 1000);
+  updateTime(); 
+  setInterval(updateTime, 1000);
 }
 
-/* ─── Status / Toast ─────────────────────────────── */
+function toggleClosedView() {
+  const btn = document.getElementById('toggleClosedBtn');
+  if (viewMode === 'active') {
+    viewMode = 'closed';
+    btn.innerHTML = '<i class="ti ti-folder"></i> View Active Tenders';
+    btn.classList.add('btn-primary'); 
+    btn.classList.remove('btn-ghost');
+  } else {
+    viewMode = 'active';
+    btn.innerHTML = '<i class="ti ti-archive"></i> View Closed Tenders';
+    btn.classList.add('btn-ghost');
+    btn.classList.remove('btn-primary');
+  }
+  renderTable(); 
+}
+
+const EDIT_FORM_TEMPLATE = `
+  <div class="form-section">
+    <div class="form-section-title"><i class="ti ti-briefcase"></i> Customer & Tender Info</div>
+    <div class="form-grid">
+      <div class="form-group form-full"><label class="form-label" for="inp_customer">Customer Name *</label><input id="inp_customer" placeholder="Enter customer company name..."></div>
+      <div class="form-group"><label class="form-label" for="inp_sales">Sales Person</label><input id="inp_sales" placeholder="Enter assigned salesperson name..."></div>
+      <div class="form-group"><label class="form-label" for="inp_spr">SPR Raised?</label><select id="inp_spr"><option value="false">NO</option><option value="true">YES</option></select></div>
+      <div class="form-group form-full"><label class="form-label" for="inp_remark">General Remarks</label><input id="inp_remark" placeholder="Enter any general notes..."></div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title"><i class="ti ti-clock"></i> Important Dates</div>
+    <div class="form-grid cols3">
+      <div class="form-group"><label class="form-label" for="inp_collect">Collection Date</label><input id="inp_collect" type="date"></div>
+      <div class="form-group"><label class="form-label" for="inp_prebid">Pre-Bid Meeting Date</label><input id="inp_prebid" type="date"></div>
+      <div class="form-group"><label class="form-label" for="inp_closing">Closing Date</label><input id="inp_closing" type="date"></div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title"><i class="ti ti-box-model-2"></i> Items List</div>
+    <div style="display:grid;grid-template-columns:1fr 120px 42px;gap:12px;margin-bottom:8px;padding:0 2px;">
+      <span style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Item Name</span>
+      <span style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Qty</span><span></span>
+    </div>
+    <div id="itemsWrap"></div>
+    <button class="btn-add-item" onclick="addItemRow()"><i class="ti ti-plus"></i> Add New Item</button>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title"><i class="ti ti-shopping-cart-discount"></i> Local Purchase Section</div>
+    <div class="form-grid">
+      <div class="form-full">
+        <div class="lp-toggle-wrap" id="lpToggleWrap" onclick="toggleLP()">
+          <div class="lp-checkbox" id="lpCheckbox"></div>
+          <div><div class="lp-toggle-label">Is Local Purchase?</div><div class="lp-toggle-sub">Check this box if this tender requires local purchase options</div></div>
+        </div>
+        <input type="hidden" id="inp_lp" value="false">
+      </div>
+      <div class="form-group form-full"><label class="form-label" for="inp_lp_remark">Local Purchase Remarks</label><textarea id="inp_lp_remark" placeholder="Enter vendor details..."></textarea></div>
+    </div>
+  </div>
+`;
+
+let closingSortDirection = 'asc'; 
+
 function setStatus(state, text) {
   document.getElementById('dbDot').className = 'db-dot ' + state;
   document.getElementById('dbStatusText').textContent = text;
 }
 function showToast(msg, icon) {
   const t = document.getElementById('toast');
-  t.innerHTML = (icon ? `<i class="ti ti-${icon}"></i>` : '') + msg;
+  t.innerHTML = (icon ? `<i class="ti ti-${icon}"></i> ` : '') + msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-/* ─── Formatting ─────────────────────────────────── */
 function fmt(d) {
   if (!d) return '—';
   const [y, m, day] = d.split('-');
   return `${day}/${m}/${y}`;
 }
 
-/* ─── Days Left ──────────────────────────────────── */
 function daysLeft(closing) {
   if (!closing) return null;
   const [y, m, day] = closing.split('-');
   const closingDate = new Date(y, m - 1, day);
   closingDate.setHours(0, 0, 0, 0);
-  const now   = new Date();
+  const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diff  = Math.round((closingDate - today) / 86400000);
-  if (diff === 0 && now.getHours() >= 17) return -1;
-  return diff;
+  const diffDays = Math.round((closingDate - today) / 86400000);
+  if (diffDays === 0 && now.getHours() >= 17) return -1; 
+  return diffDays;
 }
 
-/* ─── Sort Toggle ────────────────────────────────── */
 function toggleDateSort() {
-  closingSortDirection = closingSortDirection === 'asc' ? 'desc' : 'asc';
-  document.getElementById('sortIcon').className =
-    `ti ti-arrow-narrow-${closingSortDirection === 'asc' ? 'up' : 'down'} sort-icon`;
+  closingSortDirection = (closingSortDirection === 'asc') ? 'desc' : 'asc';
+  document.getElementById('sortIcon').className = closingSortDirection === 'asc' ? 'ti ti-arrow-narrow-up' : 'ti ti-arrow-narrow-down';
   renderTable();
 }
 
-/* ─── View Toggle ────────────────────────────────── */
-function toggleClosedView() {
-  const btn = document.getElementById('toggleClosedBtn');
-  if (viewMode === 'active') {
-    viewMode = 'closed';
-    btn.innerHTML = '<i class="ti ti-folder"></i> View Active';
-    btn.classList.replace('btn-ghost', 'btn-primary');
-  } else {
-    viewMode = 'active';
-    btn.innerHTML = '<i class="ti ti-archive"></i> View Closed';
-    btn.classList.replace('btn-primary', 'btn-ghost');
-  }
-  renderTable();
-}
-
-/* ─── Filter / Sort ──────────────────────────────── */
 function getFilteredRecords() {
   let entries = Object.entries(cache);
   const q = document.getElementById('search').value.toLowerCase();
@@ -588,427 +650,247 @@ function getFilteredRecords() {
   });
 
   if (q) entries = entries.filter(([,t]) => t.customer.toLowerCase().includes(q));
-  if      (f === 'urgent') entries = entries.filter(([,t]) => { const d=daysLeft(t.closing); return d!==null && d<=3 && d>=0; });
-  else if (f === 'week')   entries = entries.filter(([,t]) => { const d=daysLeft(t.closing); return d!==null && d<=7 && d>=0; });
-  else if (f === 'lp')     entries = entries.filter(([,t]) => t.localPurchase === true);
+  
+  if      (f==='urgent') entries = entries.filter(([,t]) => { const d=daysLeft(t.closing); return d!==null && d<=3 && d>=0; });
+  else if (f==='week')   entries = entries.filter(([,t]) => { const d=daysLeft(t.closing); return d!==null && d<=7 && d>=0; });
+  else if (f==='lp')     entries = entries.filter(([,t]) => t.localPurchase === true);
 
   entries.sort((a, b) => {
-    const da = a[1].closing ? new Date(a[1].closing) : new Date('9999-12-31');
-    const db = b[1].closing ? new Date(b[1].closing) : new Date('9999-12-31');
-    return closingSortDirection === 'asc' ? da - db : db - da;
+    const dateA = a[1].closing ? new Date(a[1].closing) : new Date('9999-12-31');
+    const dateB = b[1].closing ? new Date(b[1].closing) : new Date('9999-12-31');
+    return closingSortDirection === 'asc' ? dateA - dateB : dateB - dateA;
   });
+
   return entries;
 }
 
-/* ─── Render Table ───────────────────────────────── */
+function exportToExcelBackup() {
+  const targetRecords = getFilteredRecords();
+  if (!targetRecords.length) return showToast('No structured entries available to export', 'alert-circle');
+
+  let excelTemplate = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head></head><body><table border="1"><tr style="background-color:#111625; color:#FFFFFF; font-weight:bold;"><th>Firebase Identity Key</th><th>Customer Name</th><th>Assigned Sales Person</th><th>Line Items</th><th>Collection Date</th><th>Pre-Bid Meeting Date</th><th>Closing Date Target</th><th>Days Left Status</th><th>SPR Raised</th><th>Is Local Purchase (LP)</th><th>General Remarks</th><th>Local Purchase Remarks</th></tr>`;
+
+  targetRecords.forEach(([key, t]) => {
+    const d = daysLeft(t.closing);
+    const calculatedDays = (d !== null) ? (d < 0 ? 'Closed' : d === 0 ? 'Today' : `${d} days left`) : '—';
+    const lpFlag = t.localPurchase === true ? 'YES' : 'NO';
+    const sprFlag = t.sprRaised === true ? 'YES' : 'NO';
+    const serializedItems = (t.items && t.items.length) ? t.items.map(it => `${it.item}${it.qty ? ' (' + it.qty + ')' : ''}`).join(', ') : '—';
+
+    excelTemplate += `<tr><td>${key}</td><td>${t.customer || '—'}</td><td>${t.salesHolder || '—'}</td><td>${serializedItems}</td><td>${t.collect || '—'}</td><td>${t.prebid || '—'}</td><td>${t.closing || '—'}</td><td>${calculatedDays}</td><td>${sprFlag}</td><td>${lpFlag}</td><td>${t.remark || '—'}</td><td>${t.lpRemark || '—'}</td></tr>`;
+  });
+
+  excelTemplate += `</table></body></html>`;
+  const sandboxDownloadLink = document.createElement('a');
+  sandboxDownloadLink.href = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(excelTemplate);
+  sandboxDownloadLink.download = `Tender_Management_Backup_${new Date().toISOString().slice(0, 10)}.xls`;
+  document.body.appendChild(sandboxDownloadLink);
+  sandboxDownloadLink.click();
+  sandboxDownloadLink.remove();
+}
+
+function exportToPNG() {
+  showToast('Generating high-quality image...', 'clock');
+  const elementToCapture = document.querySelector('.table-card');
+  const originalMaxHeight = elementToCapture.style.maxHeight;
+  elementToCapture.style.maxHeight = 'none'; elementToCapture.style.overflow = 'visible';
+
+  html2canvas(elementToCapture, { scale: 3, backgroundColor: '#FFFFFF', useCORS: true, logging: false }).then(canvas => {
+    elementToCapture.style.maxHeight = originalMaxHeight; elementToCapture.style.overflow = '';
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png'); link.download = `Tenders_HighRes_${new Date().toISOString().slice(0, 10)}.png`;
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    showToast('PNG Downloaded Successfully!', 'circle-check');
+  }).catch(err => { showToast('Failed to render image', 'alert-circle'); });
+}
+
+async function fbGet()          { const r = await fetch(`${DB_URL}${NODE}.json`); if(!r.ok) throw new Error(r.status); return r.json(); }
+async function fbPost(obj)      { const r = await fetch(`${DB_URL}${NODE}.json`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(obj) }); if(!r.ok) throw new Error(r.status); return (await r.json()).name; }
+async function fbPut(key, obj)  { const r = await fetch(`${DB_URL}${NODE}/${key}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(obj) }); if(!r.ok) throw new Error(r.status); }
+async function fbDelete(key)    { const r = await fetch(`${DB_URL}${NODE}/${key}.json`, { method:'DELETE' }); if(!r.ok) throw new Error(r.status); }
+
+async function loadFromFirebase() {
+  setStatus('syncing', 'Loading data...');
+  try {
+    const data = await fbGet();
+    if (data) cache = data;
+    setStatus('connected', 'Connected');
+    document.getElementById('newBtn').disabled = false;
+    renderTable();
+  } catch(e) {
+    setStatus('error', 'Connection failed');
+    document.getElementById('tableBody').innerHTML = `<tr class="empty-row"><td colspan="11">Could not sync data: ${e.message}</td></tr>`;
+  }
+}
+
 function renderTable() {
   const entries = getFilteredRecords();
-  const kpiLabel = viewMode === 'active' ? 'Active Tenders' : 'Closed Tenders';
   document.getElementById('activeCount').textContent = entries.length;
-  document.getElementById('activeCount').nextElementSibling.textContent = kpiLabel;
+  document.getElementById('activeCount').nextElementSibling.textContent = viewMode === 'active' ? 'Active Tenders' : 'Closed Tenders';
   document.getElementById('prebidCount').textContent = entries.filter(([,t]) => t.prebid).length;
-  document.getElementById('lpCount').textContent     = entries.filter(([,t]) => t.localPurchase === true).length;
-  document.getElementById('recordCountLabel').textContent = `${entries.length} record${entries.length !== 1 ? 's' : ''}`;
+  document.getElementById('lpCount').textContent = entries.filter(([,t]) => t.localPurchase === true).length;
 
   let criticalSevenDayCount = 0;
-
   const rows = entries.map(([key, t]) => {
     const d = daysLeft(t.closing);
     let dayCls = 'days-ok', dayTxt = '—', urgBadge = '';
-
     if (d !== null) {
-      if (d < 0)      dayTxt = `<span class="badge badge-gray">Closed</span>`;
+      if (d < 0) dayTxt = `<span class="badge badge-gray">Closed</span>`;
       else if (d === 0) dayTxt = `<span class="badge badge-red">Today</span>`;
-      else              dayTxt = `<span class="${d <= 3 ? 'days-crit' : d <= 7 ? 'days-warn' : 'days-ok'}">${d}d left</span>`;
-
-      if (d <= 3 && d >= 0) urgBadge = `<span class="badge badge-urgent">Urgent</span>`;
+      else dayTxt = d + ' days left';
+      if (d <= 3 && d >= 0) { dayCls = 'days-crit'; urgBadge = ' <span class="badge badge-red" style="font-size:10px;padding:2px 6px;margin-left:6px;text-transform:uppercase">Urgent</span>'; }
+      else if (d <= 7 && d >= 0) dayCls = 'days-warn';
       if (d >= 0 && d <= 7) criticalSevenDayCount++;
     }
 
-    const itemsTxt = (t.items && t.items.length)
-      ? t.items
-          .filter(it => it.item && !/\$\{/.test(it.item))
-          .map(it => `${it.item}${it.qty && !/\$\{/.test(it.qty) ? ' <span style="color:var(--text-dim)">('+it.qty+')</span>' : ''}`).join(', ') || '—'
-      : '—';
+    const itemsTxt = (t.items && t.items.length) ? t.items.map(it => `${it.item}${it.qty ? ' <span>('+it.qty+')</span>' : ''}`).join(', ') : '—';
+    const lpTick = t.localPurchase === true ? '<span class="lp-tick yes"><i class="ti ti-checkbox"></i></span>' : '<span class="lp-tick no"><i class="ti ti-square"></i></span>';
+    const sprBadge = t.sprRaised === true ? '<span class="badge badge-green">YES</span>' : '<span class="badge badge-gray">NO</span>';
 
-    const lpTick = t.localPurchase
-      ? `<div class="lp-tick yes"><i class="ti ti-checkbox"></i></div>`
-      : `<div class="lp-tick no"><i class="ti ti-square"></i></div>`;
-
-    let note = t.remark || '';
-    if (t.localPurchase && t.lpRemark) note += (note ? ' · ' : '') + t.lpRemark;
+    let cumulativeNote = t.remark || '';
+    if (t.localPurchase && t.lpRemark) cumulativeNote += (cumulativeNote ? ' | LP Note: ' : 'LP Note: ') + t.lpRemark;
+    const displayNote = cumulativeNote ? `<span style="color:#4A5568" title="${cumulativeNote}">${cumulativeNote}</span>` : '—';
 
     return `<tr onclick="openModal('${key}', 'view')">
-      <td class="tc-cust">
-        <span class="cust-name">${t.customer || '—'}</span>${urgBadge}
-      </td>
-      <td class="tc-items" style="font-size:13px; color:var(--text-lo)">${itemsTxt}</td>
-      <td class="tc-date" style="font-family:var(--ff-mono);font-size:12.5px">${fmt(t.collect)}</td>
-      <td class="tc-date" style="font-family:var(--ff-mono);font-size:12.5px">${fmt(t.prebid)}</td>
-      <td class="tc-date" style="font-family:var(--ff-mono);font-size:12.5px;font-weight:700;color:var(--text-hi)">${fmt(t.closing)}</td>
-      <td class="tc-days">${dayTxt}</td>
-      <td class="tc-sales">${t.salesHolder || '—'}</td>
+      <td class="tc-cust"><span style="font-weight:700;">${t.customer || '—'}</span>${urgBadge}</td>
+      <td class="tc-items" style="font-size:13px">${itemsTxt}</td>
+      <td class="tc-date">${fmt(t.collect)}</td><td class="tc-date">${fmt(t.prebid)}</td>
+      <td class="tc-date" style="font-weight:700;">${fmt(t.closing)}</td><td class="tc-days ${dayCls}">${dayTxt}</td>
+      <td class="tc-sales">${t.salesHolder || '—'}</td><td class="tc-spr" style="text-align:center">${sprBadge}</td>
       <td class="tc-lp">${lpTick}</td>
-      <td class="tc-note" style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; color:var(--text-lo)" title="${note}">${note || '—'}</td>
+      <td class="tc-note" style="font-size:13px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${displayNote}</td>
       <td class="tc-act">
         <div class="row-actions">
-          <button class="btn-icon" onclick="event.stopPropagation(); openModal('${key}', 'edit')" title="Edit record">
-            <i class="ti ti-edit-circle"></i>
-          </button>
-          <button class="btn-icon del" onclick="event.stopPropagation(); deleteTender('${key}')" title="Delete record">
-            <i class="ti ti-trash-x"></i>
-          </button>
+          <button class="btn-icon" onclick="event.stopPropagation(); openModal('${key}', 'edit')" title="Edit"><i class="ti ti-edit-circle"></i></button>
+          <button class="btn-icon del" onclick="event.stopPropagation(); deleteTender('${key}')" title="Delete"><i class="ti ti-trash-x"></i></button>
         </div>
       </td>
     </tr>`;
   });
 
   document.getElementById('weeklyCount').textContent = criticalSevenDayCount;
-  document.getElementById('tableBody').innerHTML = rows.length
-    ? rows.join('')
-    : `<tr class="empty-row"><td colspan="10">
-        <div class="empty-state">
-          <i class="ti ti-inbox"></i>
-          <p>No records found in this view.</p>
-        </div>
-       </td></tr>`;
-
+  document.getElementById('tableBody').innerHTML = rows.length ? rows.join('') : '<tr class="empty-row"><td colspan="11">No records found in this view.</td></tr>';
+  
   const all = Object.values(cache);
   const todayStr = new Date().toISOString().slice(0, 10);
   const sc = all.filter(t => t.closing && daysLeft(t.closing) >= 0).sort((a, b) => new Date(a.closing) - new Date(b.closing));
   document.getElementById('nextClosing').textContent = sc[0] ? `${sc[0].customer} (${fmt(sc[0].closing)})` : '—';
   const sp = all.filter(t => t.prebid && t.prebid >= todayStr).sort((a, b) => new Date(a.prebid) - new Date(b.prebid));
-  document.getElementById('nextPrebid').textContent = sp[0] ? `${sp[0].customer} (${fmt(sp[0].prebid)})` : '—';
+  document.getElementById('nextPrebid').textContent  = sp[0] ? `${sp[0].customer} (${fmt(sp[0].prebid)})` : '—';
 }
 
-/* ─── LP State ───────────────────────────────────── */
 let lpChecked = false;
-function toggleLP() { lpChecked = !lpChecked; _applyLP(); }
-function setLP(val) { lpChecked = !!val; _applyLP(); }
-function _applyLP() {
+function toggleLP() { setLP(!lpChecked); }
+function setLP(val) {
+  lpChecked = !!val;
   const wrap = document.getElementById('lpToggleWrap');
   const box  = document.getElementById('lpCheckbox');
-  if (lpChecked) {
-    wrap.classList.add('checked');
-    box.innerHTML = '<i class="ti ti-check"></i>';
-  } else {
-    wrap.classList.remove('checked');
-    box.innerHTML = '';
+  if (wrap && box) {
+    if (lpChecked) { wrap.classList.add('checked'); box.innerHTML = '<i class="ti ti-check"></i>'; }
+    else { wrap.classList.remove('checked'); box.innerHTML = ''; }
+    document.getElementById('inp_lp').value = lpChecked;
   }
-  document.getElementById('inp_lp').value = lpChecked;
 }
 
-/* ─── Edit Form Template ─────────────────────────── */
-const EDIT_FORM_TEMPLATE = `
-  <div class="form-section">
-    <div class="form-section-title"><i class="ti ti-briefcase"></i> Customer Information</div>
-    <div class="form-grid">
-      <div class="form-group form-full">
-        <label class="form-label" for="inp_customer">Customer Name <span class="req">*</span></label>
-        <input id="inp_customer" placeholder="Enter customer company name…">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="inp_sales">Sales Person</label>
-        <input id="inp_sales" placeholder="Assigned salesperson name…">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="inp_remark">General Remarks</label>
-        <input id="inp_remark" placeholder="Any general notes…">
-      </div>
-    </div>
-  </div>
-  <div class="form-section">
-    <div class="form-section-title"><i class="ti ti-calendar-event"></i> Important Dates</div>
-    <div class="form-grid cols3">
-      <div class="form-group">
-        <label class="form-label" for="inp_collect">Collection Date</label>
-        <input id="inp_collect" type="date">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="inp_prebid">Pre-Bid Meeting</label>
-        <input id="inp_prebid" type="date">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="inp_closing">Closing Date</label>
-        <input id="inp_closing" type="date">
-      </div>
-    </div>
-  </div>
-  <div class="form-section">
-    <div class="form-section-title"><i class="ti ti-box-model-2"></i> Items List</div>
-    <div class="items-header"><span>Item Name</span><span>Qty</span><span></span></div>
-    <div id="itemsWrap"></div>
-    <button class="btn-add-item" onclick="addItemRow()"><i class="ti ti-plus"></i> Add Item</button>
-  </div>
-  <div class="form-section">
-    <div class="form-section-title"><i class="ti ti-shopping-cart-discount"></i> Local Purchase</div>
-    <div class="form-grid">
-      <div class="form-full">
-        <div class="lp-toggle-wrap" id="lpToggleWrap" onclick="toggleLP()">
-          <div class="lp-checkbox" id="lpCheckbox"></div>
-          <div>
-            <div class="lp-label-main">Is Local Purchase?</div>
-            <div class="lp-label-sub">Enable if this tender requires local sourcing options</div>
-          </div>
-        </div>
-        <input type="hidden" id="inp_lp" value="false">
-      </div>
-      <div class="form-group form-full">
-        <label class="form-label" for="inp_lp_remark">Local Purchase Remarks</label>
-        <textarea id="inp_lp_remark" placeholder="Vendor details, delivery conditions…"></textarea>
-      </div>
-    </div>
-  </div>
-`;
-
-/* ─── Modal ──────────────────────────────────────── */
 function openModal(key, mode = 'edit') {
   currentModalMode = mode;
   document.getElementById('editKey').value = key || '';
-
-  const wrapper     = document.getElementById('modalWrapper');
-  const body        = document.getElementById('modalDynamicBody');
-  const saveBtn     = document.getElementById('saveBtn');
-  const modalIcon   = document.getElementById('modalIcon');
+  const wrapper = document.getElementById('modalWrapper');
+  const bodyContainer = document.getElementById('modalDynamicBody');
+  const saveBtn = document.getElementById('saveBtn');
 
   if (mode === 'view') {
-    wrapper.classList.add('view-only');
-    document.getElementById('modalTitle').textContent = 'Tender Preview';
-    modalIcon.className = 'ti ti-eye';
-    saveBtn.style.display = 'none';
-
+    wrapper.classList.add('view-only'); document.getElementById('modalTitle').textContent = 'Tender Preview Summary'; saveBtn.style.display = 'none';
     const t = cache[key] || {};
     const d = daysLeft(t.closing);
-    let daysDisplay = '—';
-    if (d !== null) daysDisplay = d < 0 ? 'Closed' : d === 0 ? 'Closes Today' : `${d} days remaining`;
+    let calculatedDays = '—'; if (d !== null) calculatedDays = d < 0 ? 'Closed' : d === 0 ? 'Closes Today' : `${d} days remaining`;
+    const itemRowsHTML = (t.items && t.items.length) ? t.items.map(it => `<tr><td><strong>${it.item || '—'}</strong></td><td>${it.qty || '—'}</td></tr>`).join('') : `<tr><td colspan="2" style="text-align:center;color:var(--text-muted)">No items assigned.</td></tr>`;
 
-    const itemRowsHTML = (t.items && t.items.length)
-      ? t.items.map(it => `<tr><td><strong>${it.item || '—'}</strong></td><td>${it.qty || '—'}</td></tr>`).join('')
-      : `<tr><td colspan="2" style="text-align:center;color:var(--text-lo)">No items assigned.</td></tr>`;
-
-    body.innerHTML = `
+    bodyContainer.innerHTML = `
       <div class="compact-grid">
-        <div class="compact-cell full">
-          <div class="compact-label">Customer</div>
-          <div class="compact-value" style="font-size:17px;color:var(--blue-600)">${t.customer || '—'}</div>
+        <div class="compact-cell full"><div class="compact-label">Customer Workspace</div><div class="compact-value" style="font-size:16px;color:var(--primary);">${t.customer || '—'}</div></div>
+        <div class="compact-cell"><div class="compact-label">Assigned Representative</div><div class="compact-value">${t.salesHolder || '—'}</div></div>
+        <div class="compact-cell"><div class="compact-label">Timeline Status</div><div class="compact-value">${calculatedDays}</div></div>
+        <div class="compact-cell"><div class="compact-label">Collection Target</div><div class="compact-value">${fmt(t.collect)}</div></div>
+        <div class="compact-cell"><div class="compact-label">Pre-Bid Meeting</div><div class="compact-value">${fmt(t.prebid)}</div></div>
+        <div class="compact-cell full"><div class="compact-label">Closing Target Date</div><div class="compact-value" style="color:var(--danger); font-size:15px;">${fmt(t.closing)}</div></div>
+        <div class="compact-cell full" style="background:transparent; border:none; padding:8px 0 0 0;">
+          <div class="form-section-title" style="margin-bottom:8px;"><i class="ti ti-box-model-2"></i> Materials Array</div>
+          <table class="compact-table"><thead><tr><th>Item Specification / Detail</th><th style="width:100px;">Quantity</th></tr></thead><tbody>${itemRowsHTML}</tbody></table>
         </div>
-        <div class="compact-cell">
-          <div class="compact-label">Assigned Sales Person</div>
-          <div class="compact-value">${t.salesHolder || '—'}</div>
-        </div>
-        <div class="compact-cell">
-          <div class="compact-label">Timeline Status</div>
-          <div class="compact-value">${daysDisplay}</div>
-        </div>
-        <div class="compact-cell">
-          <div class="compact-label">Collection Date</div>
-          <div class="compact-value" style="font-family:var(--ff-mono)">${fmt(t.collect)}</div>
-        </div>
-        <div class="compact-cell">
-          <div class="compact-label">Pre-Bid Meeting</div>
-          <div class="compact-value" style="font-family:var(--ff-mono)">${fmt(t.prebid)}</div>
-        </div>
-        <div class="compact-cell full">
-          <div class="compact-label">Closing Date</div>
-          <div class="compact-value" style="color:var(--danger);font-size:15px;font-family:var(--ff-mono)">${fmt(t.closing)}</div>
-        </div>
-        <div class="compact-cell full" style="background:transparent;border:none;padding:4px 0 0 0">
-          <div class="form-section-title" style="margin-bottom:8px;"><i class="ti ti-box-model-2"></i> Items</div>
-          <table class="compact-table">
-            <thead><tr><th>Item / Specification</th><th style="width:110px">Quantity</th></tr></thead>
-            <tbody>${itemRowsHTML}</tbody>
-          </table>
-        </div>
-        <div class="compact-cell">
-          <div class="compact-label">Local Purchase</div>
-          <div class="compact-value">
-            ${t.localPurchase ? '<span class="badge badge-green"><i class="ti ti-check"></i> Enabled</span>' : '<span class="badge badge-gray">Standard Sourcing</span>'}
-          </div>
-        </div>
-        <div class="compact-cell">
-          <div class="compact-label">General Remarks</div>
-          <div class="compact-value" style="font-weight:400;font-size:13px">${t.remark || '—'}</div>
-        </div>
-        <div class="compact-cell full highlight">
-          <div class="compact-label" style="color:#92400E">Local Purchase Remarks</div>
-          <div class="compact-value" style="font-size:13px;color:#78350F">${t.lpRemark || '—'}</div>
-        </div>
-      </div>`;
+        <div class="compact-cell"><div class="compact-label">Local Sourcing Requirement</div><div class="compact-value">${t.localPurchase ? '<span class="badge badge-green"><i class="ti ti-check"></i> Local Purchase Enabled</span>' : '<span class="badge badge-gray">Standard Sourcing</span>'}</div></div>
+        <div class="compact-cell"><div class="compact-label">SPR Raised</div><div class="compact-value">${t.sprRaised ? '<span class="badge badge-green">YES</span>' : '<span class="badge badge-gray">NO</span>'}</div></div>
+        <div class="compact-cell full"><div class="compact-label">General Account Remarks</div><div class="compact-value" style="font-weight:400; font-size:13px;">${t.remark || '—'}</div></div>
+        <div class="compact-cell full" style="background:#FFF8E1; border-color:#FFE082;"><div class="compact-label" style="color:#B7791F">Local Purchase Remarks</div><div class="compact-value" style="font-weight:500; font-size:13px; color:#B7791F">${t.lpRemark || '—'}</div></div>
+      </div>
+    `;
   } else {
-    wrapper.classList.remove('view-only');
-    document.getElementById('modalTitle').textContent = key ? 'Modify Record' : 'New Tender';
-    modalIcon.className = key ? 'ti ti-edit-circle' : 'ti ti-file-plus';
-    saveBtn.style.display = 'inline-flex';
-    body.innerHTML = EDIT_FORM_TEMPLATE;
+    wrapper.classList.remove('view-only'); document.getElementById('modalTitle').textContent = key ? 'Modify Entry' : 'Create Record';
+    saveBtn.style.display = 'inline-flex'; bodyContainer.innerHTML = EDIT_FORM_TEMPLATE;
 
     if (key && cache[key]) {
       const t = cache[key];
-      document.getElementById('inp_customer').value  = t.customer    || '';
-      document.getElementById('inp_sales').value     = t.salesHolder || '';
-      document.getElementById('inp_collect').value   = t.collect     || '';
-      document.getElementById('inp_prebid').value    = t.prebid      || '';
-      document.getElementById('inp_closing').value   = t.closing     || '';
-      document.getElementById('inp_remark').value    = t.remark      || '';
-      document.getElementById('inp_lp_remark').value = t.lpRemark    || '';
+      document.getElementById('inp_customer').value  = t.customer || ''; document.getElementById('inp_sales').value = t.salesHolder || '';
+      document.getElementById('inp_spr').value       = t.sprRaised ? "true" : "false"; document.getElementById('inp_collect').value   = t.collect || '';
+      document.getElementById('inp_prebid').value    = t.prebid || ''; document.getElementById('inp_closing').value   = t.closing || '';
+      document.getElementById('inp_remark').value    = t.remark || ''; document.getElementById('inp_lp_remark').value = t.lpRemark || '';
       setLP(t.localPurchase);
-      (t.items || []).forEach(i => addItemRow(i.item, i.qty));
+      (t.items||[]).forEach(i => addItemRow(i.item, i.qty));
       if (!t.items || !t.items.length) addItemRow();
     } else {
-      setLP(false);
-      addItemRow();
+      document.getElementById('inp_spr').value = "false"; setLP(false); addItemRow();
     }
   }
   document.getElementById('modalBg').classList.add('open');
 }
 
 function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
-function bgClick(e)   { if (e.target === document.getElementById('modalBg')) closeModal(); }
+function bgClick(e, id) { if (e.target.id === id) document.getElementById(id).classList.remove('open'); }
 
-/* ─── Items ──────────────────────────────────────── */
 function addItemRow(name, qty) {
   const wrap = document.getElementById('itemsWrap');
   if (!wrap) return;
-  const row = document.createElement('div');
-  row.className = 'item-row';
-  row.innerHTML = `
-    <input placeholder="Item name / specification…" class="iname" value="${name || ''}">
-    <input placeholder="Qty" class="iqty" value="${qty || ''}">
-    <button class="btn-del" onclick="this.parentElement.remove()" title="Remove row"><i class="ti ti-minus"></i></button>`;
+  const row  = document.createElement('div'); row.className = 'item-row';
+  row.innerHTML = `<input placeholder="Item configuration..." class="iname" value="${name||''}"><input placeholder="Qty" class="iqty" value="${qty||''}"><button class="btn-del" onclick="this.parentElement.remove()"><i class="ti ti-minus"></i></button>`;
   wrap.appendChild(row);
 }
 
-/* ─── Save ───────────────────────────────────────── */
 async function saveTender() {
   const customer = document.getElementById('inp_customer').value.trim();
-  if (!customer) { alert('Please enter a Customer Name.'); return; }
+  if (!customer) return alert('Please fill in a Customer Name.');
 
   const items = [];
   document.querySelectorAll('#itemsWrap .item-row').forEach(r => {
-    const n = r.querySelector('.iname').value.trim();
-    const q = r.querySelector('.iqty').value.trim();
-    if (n) items.push({ item: n, qty: q });
+    const n = r.querySelector('.iname').value.trim(); const q = r.querySelector('.iqty').value.trim();
+    if (n) items.push({ item:n, qty:q });
   });
 
   const obj = {
-    customer,
-    salesHolder:   document.getElementById('inp_sales').value,
-    collect:       document.getElementById('inp_collect').value,
-    prebid:        document.getElementById('inp_prebid').value,
-    closing:       document.getElementById('inp_closing').value,
-    localPurchase: lpChecked,
-    remark:        document.getElementById('inp_remark').value,
-    lpRemark:      document.getElementById('inp_lp_remark').value,
-    items,
-    updatedAt:     new Date().toISOString()
+    customer, salesHolder: document.getElementById('inp_sales').value, sprRaised: document.getElementById('inp_spr').value === 'true',
+    collect: document.getElementById('inp_collect').value, prebid: document.getElementById('inp_prebid').value, closing: document.getElementById('inp_closing').value,
+    localPurchase: lpChecked, remark: document.getElementById('inp_remark').value, lpRemark: document.getElementById('inp_lp_remark').value,
+    items, updatedAt: new Date().toISOString()
   };
 
-  const saveBtn = document.getElementById('saveBtn');
-  saveBtn.disabled = true;
-  setStatus('syncing', 'Saving…');
+  const saveBtn = document.getElementById('saveBtn'); saveBtn.disabled = true; setStatus('syncing', 'Saving data...');
 
   try {
     const key = document.getElementById('editKey').value;
     if (key) { await fbPut(key, obj); cache[key] = obj; showToast('Tender record updated', 'circle-check'); }
-    else     { const nk = await fbPost(obj); cache[nk] = obj; showToast('Tender record created', 'circle-check'); }
-    setStatus('connected', 'Connected');
-    closeModal();
-    renderTable();
+    else     { const nk = await fbPost(obj); cache[nk] = obj; showToast('Tender record registered', 'circle-check'); }
+    setStatus('connected', 'Connected'); closeModal(); renderTable();
   } catch(e) {
-    setStatus('error', 'Sync failed');
-    showToast('Error: ' + e.message, 'alert-circle');
-  } finally {
-    saveBtn.disabled = false;
-  }
+    setStatus('error', 'Sync failed'); showToast('Error: ' + e.message, 'alert-circle');
+  } finally { saveBtn.disabled = false; }
 }
 
-/* ─── Delete ─────────────────────────────────────── */
 async function deleteTender(key) {
-  if (!confirm('Permanently delete this record? This action cannot be undone.')) return;
-  setStatus('syncing', 'Deleting…');
+  if (!confirm('Permanently purge this item? This action is absolute.')) return;
+  setStatus('syncing', 'Purging...');
   try {
-    await fbDelete(key);
-    delete cache[key];
-    setStatus('connected', 'Connected');
-    showToast('Record deleted', 'trash');
-    renderTable();
-  } catch(e) {
-    setStatus('error', 'Delete failed');
-    showToast('Error: ' + e.message, 'alert-circle');
-  }
+    await fbDelete(key); delete cache[key]; setStatus('connected', 'Connected'); showToast('Record cleared', 'trash'); renderTable();
+  } catch(e) { setStatus('error', 'Purge failed'); showToast('Error: ' + e.message, 'alert-circle'); }
 }
-
-/* ─── Export ─────────────────────────────────────── */
-function exportToExcelBackup() {
-  const records = getFilteredRecords();
-  if (!records.length) { showToast('No records to export', 'alert-circle'); return; }
-
-  let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head></head><body><table border="1"><tr style="background-color:#0F1525;color:#fff;font-weight:bold;"><th>Firebase Key</th><th>Customer</th><th>Sales Person</th><th>Items</th><th>Collection Date</th><th>Pre-Bid Date</th><th>Closing Date</th><th>Days Left</th><th>Local Purchase</th><th>General Remarks</th><th>LP Remarks</th></tr>`;
-
-  records.forEach(([key, t]) => {
-    const d = daysLeft(t.closing);
-    const dStr = d !== null ? (d < 0 ? 'Closed' : d === 0 ? 'Today' : `${d} days left`) : '—';
-    const lp   = t.localPurchase === true ? 'YES' : 'NO';
-    const items = (t.items && t.items.length) ? t.items.map(it => `${it.item}${it.qty ? ' (' + it.qty + ')' : ''}`).join(', ') : '—';
-    html += `<tr><td>${key}</td><td>${t.customer||'—'}</td><td>${t.salesHolder||'—'}</td><td>${items}</td><td>${t.collect||'—'}</td><td>${t.prebid||'—'}</td><td>${t.closing||'—'}</td><td>${dStr}</td><td>${lp}</td><td>${t.remark||'—'}</td><td>${t.lpRemark||'—'}</td></tr>`;
-  });
-
-  html += `</table></body></html>`;
-  const a = document.createElement('a');
-  a.href = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
-  a.download = `Tender_Backup_${new Date().toISOString().slice(0,10)}.xls`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
-/* ─── Firebase REST ──────────────────────────────── */
-async function fbGet()         { const r = await fetch(`${DB_URL}${NODE}.json`);                                                                    if(!r.ok) throw new Error(r.status); return r.json(); }
-async function fbPost(obj)     { const r = await fetch(`${DB_URL}${NODE}.json`, { method:'POST',   headers:{'Content-Type':'application/json'}, body:JSON.stringify(obj) }); if(!r.ok) throw new Error(r.status); return (await r.json()).name; }
-async function fbPut(key, obj) { const r = await fetch(`${DB_URL}${NODE}/${key}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(obj) }); if(!r.ok) throw new Error(r.status); }
-async function fbDelete(key)   { const r = await fetch(`${DB_URL}${NODE}/${key}.json`, { method:'DELETE' });                                        if(!r.ok) throw new Error(r.status); }
-
-function sanitizeCache(data) {
-  if (!data || typeof data !== 'object') return data;
-  const templatePattern = /\$\{[^}]+\}/g;
-  Object.values(data).forEach(t => {
-    if (t.items && Array.isArray(t.items)) {
-      t.items = t.items.filter(it => {
-        const nameIsLiteral = it.item && templatePattern.test(it.item);
-        templatePattern.lastIndex = 0;
-        return !nameIsLiteral;
-      });
-      t.items.forEach(it => { if (it.qty && templatePattern.test(it.qty)) it.qty = ''; templatePattern.lastIndex = 0; });
-    }
-  });
-  return data;
-}
-
-/* ─── Load ───────────────────────────────────────── */
-async function loadFromFirebase() {
-  setStatus('syncing', 'Loading…');
-  try {
-    const data = await fbGet();
-    if (data) {
-      cache = sanitizeCache(data);
-    } else {
-      const samples = [
-        { customer:'Headquarters Tech Office', salesHolder:'Sarah Jenkins', collect:'2026-06-20', prebid:'2026-06-22', closing:'2026-06-26', localPurchase:true, lpRemark:'Requires custom chassis sourcing.', remark:'SFF form factor compliance required', items:[{item:'UPS 1500VA',qty:'150'}] }
-      ];
-      cache = {};
-      for (const s of samples) { const k = await fbPost(s); cache[k] = s; }
-    }
-    setStatus('connected', 'Connected');
-    document.getElementById('newBtn').disabled = false;
-    renderTable();
-  } catch(e) {
-    setStatus('error', 'Connection failed');
-    document.getElementById('tableBody').innerHTML = `<tr class="empty-row"><td colspan="10"><div class="empty-state"><i class="ti ti-wifi-off"></i><p>Could not connect to database: ${e.message}</p></div></td></tr>`;
-  }
-}
-
-/* ─── Boot ───────────────────────────────────────── */
-// Starts the auth check instead of directly loading the page
-checkAuth();
 </script>
 </body>
 </html>
