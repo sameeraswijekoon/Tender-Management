@@ -408,6 +408,8 @@ body {
 }
 .table-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
+.exporting-image th:last-child,
+.exporting-image td.tc-act { display: none; }
 
 thead { background: #FAFBFD; }
 thead tr { border-bottom: 2px solid var(--border); }
@@ -439,6 +441,8 @@ tbody tr:hover { background: #F7F9FD; }
 .tc-lp    { width: 8%;  min-width: 90px; text-align: center; }
 .tc-note  { width: 14%; min-width: 140px; }
 .tc-act   { width: 6%;  min-width: 80px; text-align: right; }
+.tc-items .item-line { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.tc-items .item-tags { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
 
 /* BADGES */
 .badge {
@@ -583,12 +587,12 @@ tbody tr:hover { background: #F7F9FD; }
 
 /* Items */
 .items-header {
-  display: grid; grid-template-columns: 1fr 110px 42px;
+  display: grid; grid-template-columns: 1fr 150px 72px 110px 42px;
   gap: 10px; margin-bottom: 6px; padding: 0 2px;
 }
 .items-header span { font-size: 10.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
 
-.item-row { display: grid; grid-template-columns: 1fr 110px 42px; gap: 10px; margin-bottom: 10px; align-items: center; }
+.item-row { display: grid; grid-template-columns: 1fr 150px 72px 110px 42px; gap: 10px; margin-bottom: 10px; align-items: center; }
 .item-row input {
   padding: 10px 13px; border: 1px solid var(--border);
   border-radius: var(--radius-sm); background: var(--card);
@@ -598,6 +602,45 @@ tbody tr:hover { background: #F7F9FD; }
 }
 .item-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 .item-row input::placeholder { color: #B0BAC9; }
+.item-row select {
+  padding: 10px 13px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--card);
+  color: var(--text); font-size: 13.5px; outline: none;
+  font-family: inherit; transition: border-color 0.15s;
+}
+.item-row select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.ex-stock-check { display: flex; align-items: center; justify-content: center; gap: 5px; color: var(--muted); font-size: 10px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.ex-stock-check input { width: 14px; height: 14px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; accent-color: var(--accent); cursor: pointer; }
+.item-supplier { font-style: italic; font-weight: 800; white-space: nowrap; }
+.supplier-category { display: inline-flex; align-items: center; justify-content: center; width: 54px; padding: 2px 6px; border: 1px solid currentColor; border-radius: 4px; font-size: 10px; font-style: normal; font-weight: 800; line-height: 1; vertical-align: 1px; }
+.supplier-lenovo { color: #E2231A; }
+.supplier-hp { color: #0096D6; }
+.supplier-msi { color: #E60012; }
+.supplier-leed { color: #00843D; }
+.supplier-dsp { color: #1D4ED8; }
+.supplier-dell { color: #0672CB; }
+.supplier-abans { color: #0057A8; }
+.supplier-lg { color: #A50034; }
+.supplier-huawei { color: #CF0A2C; }
+.supplier-ex-stoke { color: #64748B; }
+.supplier-sample-added { color: #64748B; }
+.supplier-category.supplier-lenovo { background: #FEF2F2; }
+.supplier-category.supplier-hp { background: #EFF6FF; }
+.supplier-category.supplier-msi { background: #FFF1F2; }
+.supplier-category.supplier-leed { background: #ECFDF5; }
+.supplier-category.supplier-dsp { background: #EFF6FF; }
+.supplier-category.supplier-dell { background: #EFF6FF; }
+.supplier-category.supplier-abans { background: #F5F3FF; }
+.supplier-category.supplier-lg { background: #FFF1F2; }
+.supplier-category.supplier-huawei { background: #FEF2F2; }
+.supplier-category.supplier-ex-stoke { background: #F1F5F9; }
+.supplier-category.supplier-sample-added { background: #F8FAFC; }
+@media(max-width:700px) {
+  .items-header { grid-template-columns: 1fr 72px 110px 42px; }
+  .items-header span:nth-child(2) { display: none; }
+  .item-row { grid-template-columns: 1fr 72px 110px 42px; }
+  .item-row .isupplier { grid-column: 1 / -2; }
+}
 .iname {}
 .iqty {}
 
@@ -1072,7 +1115,7 @@ const EDIT_FORM_TEMPLATE = `
   <div class="form-section">
     <div class="form-section-title"><i class="ti ti-box-model-2"></i> Items List</div>
     <div class="items-header">
-      <span>Item Name</span><span>Qty</span><span></span>
+      <span>Item Name</span><span>Supplier / Brand</span><span>Ex Stoke</span><span>Qty</span><span></span>
     </div>
     <div id="itemsWrap"></div>
     <button class="btn-add-item" onclick="addItemRow()"><i class="ti ti-plus"></i> Add New Item</button>
@@ -1165,7 +1208,7 @@ function exportToExcelBackup() {
     const calculatedDays = (d !== null) ? (d < 0 ? 'Closed' : d === 0 ? 'Today' : `${d} days left`) : '—';
     const lpFlag = t.localPurchase === true ? 'YES' : 'NO';
     const sprFlag = t.sprRaised === true ? 'YES' : 'NO';
-    const serializedItems = (t.items && t.items.length) ? t.items.map(it => `${it.item}${it.qty ? ' (' + it.qty + ')' : ''}`).join(', ') : '—';
+    const serializedItems = (t.items && t.items.length) ? t.items.map(it => `${it.item}${it.qty ? ' (' + it.qty + ')' : ''}${it.supplier ? ' — ' + it.supplier : ''}${it.exStock ? ' [Ex Stoke]' : ''}`).join(', ') : '—';
 
     excelTemplate += `<tr><td>${key}</td><td>${t.customer || '—'}</td><td>${t.salesHolder || '—'}</td><td>${serializedItems}</td><td>${t.collect || '—'}</td><td>${t.prebid || '—'}</td><td>${t.closing || '—'}</td><td>${calculatedDays}</td><td>${sprFlag}</td><td>${lpFlag}</td><td>${t.remark || '—'}</td><td>${t.lpRemark || '—'}</td></tr>`;
   });
@@ -1184,14 +1227,15 @@ function exportToPNG() {
   const elementToCapture = document.querySelector('.table-card');
   const originalMaxHeight = elementToCapture.style.maxHeight;
   elementToCapture.style.maxHeight = 'none'; elementToCapture.style.overflow = 'visible';
+  elementToCapture.classList.add('exporting-image');
 
   html2canvas(elementToCapture, { scale: 3, backgroundColor: '#FFFFFF', useCORS: true, logging: false }).then(canvas => {
-    elementToCapture.style.maxHeight = originalMaxHeight; elementToCapture.style.overflow = '';
+    elementToCapture.style.maxHeight = originalMaxHeight; elementToCapture.style.overflow = ''; elementToCapture.classList.remove('exporting-image');
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png'); link.download = `Tenders_HighRes_${new Date().toISOString().slice(0, 10)}.png`;
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
     showToast('PNG Downloaded Successfully!', 'circle-check');
-  }).catch(err => { showToast('Failed to render image', 'alert-circle'); });
+  }).catch(err => { elementToCapture.style.maxHeight = originalMaxHeight; elementToCapture.style.overflow = ''; elementToCapture.classList.remove('exporting-image'); showToast('Failed to render image', 'alert-circle'); });
 }
 
 async function fbGet()          { const r = await fetch(`${DB_URL}${NODE}.json`); if(!r.ok) throw new Error(r.status); return r.json(); }
@@ -1233,7 +1277,7 @@ function renderTable() {
       if (d >= 0 && d <= 7) criticalSevenDayCount++;
     }
 
-    const itemsTxt = (t.items && t.items.length) ? t.items.map(it => `${it.item}${it.qty ? ' <span style="color:var(--muted)">('+it.qty+')</span>' : ''}`).join(', ') : '—';
+    const itemsTxt = (t.items && t.items.length) ? t.items.map(it => `<div class="item-line"><span>${it.item}${it.qty ? ' <span style="color:var(--muted)">('+it.qty+')</span>' : ''}</span><span class="item-tags">${it.exStock ? ' <span class="badge badge-blue" style="font-size:9px;padding:1px 5px;">Ex Stoke</span>' : ''}${supplierMarkup(it.supplier)}</span></div>`).join('') : '—';
     const lpTick = t.localPurchase === true ? '<span class="lp-tick yes"><i class="ti ti-checkbox"></i></span>' : '<span class="lp-tick no"><i class="ti ti-square"></i></span>';
     const sprBadge = t.sprRaised === true ? '<span class="badge badge-green">YES</span>' : '<span class="badge badge-gray">NO</span>';
 
@@ -1296,7 +1340,7 @@ function openModal(key, mode = 'edit') {
     const t = cache[key] || {};
     const d = daysLeft(t.closing);
     let calculatedDays = '—'; if (d !== null) calculatedDays = d < 0 ? 'Closed' : d === 0 ? 'Closes Today' : `${d} days remaining`;
-    const itemRowsHTML = (t.items && t.items.length) ? t.items.map(it => `<tr><td><strong>${it.item || '—'}</strong></td><td>${it.qty || '—'}</td></tr>`).join('') : `<tr><td colspan="2" style="text-align:center;color:var(--muted)">No items assigned.</td></tr>`;
+    const itemRowsHTML = (t.items && t.items.length) ? t.items.map(it => `<tr><td><strong>${it.item || '—'}</strong></td><td>${it.supplier || '—'}</td><td>${it.exStock ? 'Ex Stoke' : '—'}</td><td>${it.qty || '—'}</td></tr>`).join('') : `<tr><td colspan="4" style="text-align:center;color:var(--muted)">No items assigned.</td></tr>`;
 
     bodyContainer.innerHTML = `
       <div class="compact-grid">
@@ -1308,7 +1352,7 @@ function openModal(key, mode = 'edit') {
         <div class="compact-cell full"><div class="compact-label">Closing Target Date</div><div class="compact-value" style="color:var(--red); font-size:15px;">${fmt(t.closing)}</div></div>
         <div class="compact-cell full" style="background:transparent; border:none; padding:8px 0 0 0;">
           <div class="form-section-title" style="margin-bottom:8px;"><i class="ti ti-box-model-2"></i> Materials Array</div>
-          <table class="compact-table"><thead><tr><th>Item Specification / Detail</th><th style="width:100px;">Quantity</th></tr></thead><tbody>${itemRowsHTML}</tbody></table>
+          <table class="compact-table"><thead><tr><th>Item Specification / Detail</th><th style="width:150px;">Supplier / Brand</th><th style="width:75px;">Ex Stoke</th><th style="width:100px;">Quantity</th></tr></thead><tbody>${itemRowsHTML}</tbody></table>
         </div>
         <div class="compact-cell"><div class="compact-label">Local Sourcing Requirement</div><div class="compact-value">${t.localPurchase ? '<span class="badge badge-green"><i class="ti ti-check"></i> Local Purchase Enabled</span>' : '<span class="badge badge-gray">Standard Sourcing</span>'}</div></div>
         <div class="compact-cell"><div class="compact-label">SPR Raised</div><div class="compact-value">${t.sprRaised ? '<span class="badge badge-green">YES</span>' : '<span class="badge badge-gray">NO</span>'}</div></div>
@@ -1327,7 +1371,7 @@ function openModal(key, mode = 'edit') {
       document.getElementById('inp_prebid').value    = t.prebid || ''; document.getElementById('inp_closing').value   = t.closing || '';
       document.getElementById('inp_remark').value    = t.remark || ''; document.getElementById('inp_lp_remark').value = t.lpRemark || '';
       setLP(t.localPurchase);
-      (t.items||[]).forEach(i => addItemRow(i.item, i.qty));
+      (t.items||[]).forEach(i => addItemRow(i.item, i.qty, i.supplier, i.exStock));
       if (!t.items || !t.items.length) addItemRow();
     } else {
       document.getElementById('inp_spr').value = "false"; setLP(false); addItemRow();
@@ -1339,11 +1383,31 @@ function openModal(key, mode = 'edit') {
 function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
 function bgClick(e, id) { if (e.target.id === id) document.getElementById(id).classList.remove('open'); }
 
-function addItemRow(name, qty) {
+const ITEM_SUPPLIERS = ['Lenovo', 'HP', 'MSI', 'LEED', 'DSP', 'Dell', 'Abans', 'LG', 'Huawei', 'Ex Stoke', 'Sample added'];
+const SUPPLIER_LOGOS = {
+  'Lenovo': 'data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRTIyMzFBIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+TGVub3ZvPC90aXRsZT48cGF0aCBkPSJNMjEuMDQ0IDEyLjI4OGMwIC41LS4zNDMuODY3LS44MTUuODY3LS40NjQgMC0uODI3LS4zOC0uODI3LS44NjcgMC0uNTEuMzQzLS44NjguODE1LS44NjguNDY0IDAgLjgyNy4zODEuODI3Ljg2OHptLTE0LjMwNS0uOTJhLjc4Ny43ODcgMCAwIDAtLjY1MS4zMDcuOTkxLjk5MSAwIDAgMC0uMTcyLjczOGwxLjQ3OS0uNjE0YS43MDguNzA4IDAgMCAwLS42NTYtLjQzem02Ljk2My4wNTJjLS40NzIgMC0uODE2LjM1OC0uODE2Ljg2OCAwIC40ODYuMzY0Ljg2Ny44MjguODY3LjQ3MiAwIC44MTUtLjM2OC44MTUtLjg2NyAwLS40ODctLjM2My0uODY4LS44MjctLjg2OHpNMjQgNy45OTd2OC4wMDZIMFY3Ljk5N2gyNHpNNS4wMSAxMy4wNUgzLjA4OFY5LjgyNUgyLjJ2NC4wMDNoMi43OHYtLjc3N3ptMS4xMzctLjA5NGwyLjE2My0uODk3YTEuNjY3IDEuNjY3IDAgMCAwLS4zNy0uODZjLS4yODQtLjMzLS43MDQtLjUwNS0xLjIxNi0uNTA1LS45MzEgMC0xLjYzMy42ODYtMS42MzMgMS41OTMgMCAuOTMuNzA0IDEuNTkzIDEuNzI2IDEuNTkzLjU3MiAwIDEuMTU4LS4yNzIgMS40MzItLjU4OWwtLjUzNS0uNDExYy0uMzU3LjI2NC0uNTYuMzI2LS44ODUuMzI2LS4yOTIgMC0uNTItLjA5LS42ODItLjI1em01LjU3LTEuMDM5YzAtLjcwOS0uNTA3LTEuMjIzLTEuMjUyLTEuMjIzYTEuMjggMS4yOCAwIDAgMC0xLjAwNS40OTR2LS40NDJoLS44NDZ2My4wODFoLjg0NnYtMS43NTNjMC0uMzE2LjI0NS0uNjUxLjY5OC0uNjUxLjM1IDAgLjcxMi4yNDMuNzEyLjY1MXYxLjc1M2guODQ3di0xLjkxem0zLjY0Ny4zN2MwLS45MDQtLjcyNS0xLjU5My0xLjY1LTEuNTkzLS45MzMgMC0xLjY2My43LTEuNjYzIDEuNTkzIDAgLjkwMy43MjYgMS41OTIgMS42NTEgMS41OTIuOTMyIDAgMS42NjItLjcgMS42NjItMS41OTJ6bTIuMDY2IDEuNTRsMS4yNjgtMy4wODFoLS45NjdsLS43NjUgMi4wOTktLjc2NS0yLjFoLS45NjZsMS4yNjggMy4wODFoLjkyN3ptNC40NDktMS41NGMwLS45MDQtLjcyNS0xLjU5My0xLjY1LTEuNTkzLS45MzIgMC0xLjY2Mi43LTEuNjYyIDEuNTkzIDAgLjkwMy43MjUgMS41OTIgMS42NSAxLjU5Mi45MzIgMCAxLjY2Mi0uNyAxLjY2Mi0xLjU5MnoiLz48L3N2Zz4=',
+  'HP': 'HP_logo_2025.svg',
+  'MSI': 'images.png',
+  'Abans': 'images.jpg',
+  'Huawei': 'huawei-logo-png_seeklogo-428769.png'
+};
+function supplierClass(supplier) {
+  return 'supplier-' + String(supplier || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+function supplierMarkup(supplier) {
+  if (!supplier) return '';
+  return ` <span class="supplier-category ${supplierClass(supplier)}">${supplier}</span>`;
+}
+
+function addItemRow(name, qty, supplier, exStock) {
   const wrap = document.getElementById('itemsWrap');
   if (!wrap) return;
   const row  = document.createElement('div'); row.className = 'item-row';
-  row.innerHTML = `<input placeholder="Item configuration..." class="iname" value="${name||''}"><input placeholder="Qty" class="iqty" value="${qty||''}"><button class="btn-del" onclick="this.parentElement.remove()"><i class="ti ti-minus"></i></button>`;
+  row.innerHTML = `<input placeholder="Item configuration..." class="iname"><select class="isupplier"><option value="">Select supplier / brand</option>${ITEM_SUPPLIERS.map(value => `<option value="${value}">${value}</option>`).join('')}</select><label class="ex-stock-check"><input type="checkbox" class="iexstock">Ex Stoke</label><input placeholder="Qty" class="iqty"><button class="btn-del" onclick="this.parentElement.remove()"><i class="ti ti-minus"></i></button>`;
+  row.querySelector('.iname').value = name || '';
+  row.querySelector('.iqty').value = qty || '';
+  row.querySelector('.isupplier').value = supplier || '';
+  row.querySelector('.iexstock').checked = exStock === true;
   wrap.appendChild(row);
 }
 
@@ -1354,7 +1418,8 @@ async function saveTender() {
   const items = [];
   document.querySelectorAll('#itemsWrap .item-row').forEach(r => {
     const n = r.querySelector('.iname').value.trim(); const q = r.querySelector('.iqty').value.trim();
-    if (n) items.push({ item:n, qty:q });
+    const s = r.querySelector('.isupplier').value; const exStock = r.querySelector('.iexstock').checked;
+    if (n) items.push({ item:n, qty:q, supplier:s, exStock });
   });
 
   const obj = {
