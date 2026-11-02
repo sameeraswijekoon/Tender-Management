@@ -572,6 +572,28 @@ tbody tr:hover { background: #F7F9FD; }
   .table-card tbody tr.empty-row td { display: block; text-align: center; padding: 2.5rem 1rem; }
   .table-card tbody tr.empty-row td::before { display: none; }
 
+  /* Preview popup: items table stacks with labels, no off-screen spill */
+  .compact-table { display: block; border: none; border-radius: 0; overflow: visible; }
+  .compact-table thead { display: none; }
+  .compact-table tbody { display: block; }
+  .compact-table tbody tr { display: block; padding: 8px 2px; border-bottom: 1px solid #F1F4FA; }
+  .compact-table tbody tr:last-child { border-bottom: none; }
+  .compact-table tbody td {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 3px 0; border-bottom: none; text-align: right;
+    white-space: normal;
+  }
+  .compact-table tbody td::before {
+    font-size: 10px; font-weight: 800; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.6px; text-align: left; flex-shrink: 0;
+  }
+  .compact-table tbody td:nth-child(1)::before { content: 'Item'; }
+  .compact-table tbody td:nth-child(2)::before { content: 'Supplier'; }
+  .compact-table tbody td:nth-child(3)::before { content: 'Stock'; }
+  .compact-table tbody td:nth-child(4)::before { content: 'Qty'; }
+  .compact-table tbody td[colspan] { display: block; text-align: center !important; }
+  .compact-table tbody td[colspan]::before { display: none; }
+
   .auth-card { padding: 2rem 1.25rem; margin: 0 12px; }
 
   /* Modals use the full phone width */
